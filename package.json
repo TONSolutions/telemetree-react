@@ -1,0 +1,56 @@
+{
+  "name": "@tonsolutions/analytics-react",
+  "version": "1.0.0",
+  "main": "./lib/index.сjs",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "require": "./lib/index.cjs",
+      "import": "./lib/index.mjs",
+      "default": "./lib/index.cjs"
+    }
+  },
+  "resolutions": {
+    "@types/react": "^18.2.34",
+    "@types/react-dom": "^18.0.9"
+  },
+  "scripts": {
+    "build": "tsc && vite build",
+    "start": "vite",
+    "format": "prettier --write \"src/**/*.ts*\""
+  },
+  "files": [
+    "lib"
+  ],
+  "author": "strd0x",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.8.9",
+    "@types/react": "^18.2.34",
+    "@types/react-dom": "^18.0.9",
+    "@vitejs/plugin-react": "^4.2.0",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.4",
+    "vite-plugin-dts": "^3.6.3"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "dependencies": {
+    "jsencrypt": "^3.3.2",
+    "url": ">=0.11.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TON-Commerce/analytics-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TON-Commerce/analytics-react/issues"
+  },
+  "homepage": "https://github.com/TON-Commerce/analytics-react#readme",
+  "description": "TON Solutions Analytics library for React.js"
+}
