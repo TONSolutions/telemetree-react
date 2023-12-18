@@ -10,9 +10,6 @@ export default defineConfig({
         insertTypesEntry: true
       })
   ],
-  optimizeDeps: {
-    exclude: ['csstype']
-  },
   build: {
     target: 'es6',
     outDir: 'lib',
@@ -22,7 +19,7 @@ export default defineConfig({
     lib: {
       formats: ['es', 'cjs'],
       entry: path.resolve('src/index.ts'),
-      name: '@toncommerce/twa-analytics',
+      name: '@tonsolutions/analytics-react',
       fileName: (format) => {
         switch (format) {
           case 'es':
@@ -35,11 +32,10 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ['react'],
       output: {
         globals: {
           react: 'React',
-          'react-dom': 'ReactDOM',
         }
       }
     }

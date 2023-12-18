@@ -5,14 +5,11 @@ import {
   ReactNode,
   useEffect,
   useMemo,
-  useState,
 } from 'react';
 import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
-import { HTTPTransport } from '../transports/http';
-import { CONFIG_API_GATEWAY } from '../constants';
 import { EventQueue } from '../queue/event.queue';
 
 export type TwaAnalyticsProviderOptions = {
@@ -29,7 +26,6 @@ export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
   null,
 );
 
-let autoCaptureListener: any = null;
 const TonConnectLocalStorageKey = 'ton-connect-storage_bridge-connection';
 
 export type TwaAnalyticsConfig = {
