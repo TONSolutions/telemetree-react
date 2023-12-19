@@ -1,6 +1,7 @@
 import { TwaAnalyticsConfig } from '../components/TwaAnalyticsProvider';
 import { CONFIG_API_GATEWAY } from '../constants';
 import { EventType } from '../enum/event-type.enum';
+import { encryptWithAES, generateAESKeyAndIV } from '../helpers/aes.helper';
 import { encrypt } from '../helpers/rsa.helper';
 import { IEventBuilder } from '../interfaces';
 import { TelegramWebAppData } from '../models';
@@ -31,8 +32,6 @@ export class EventBuilder implements IEventBuilder {
       requestTimeout: 1000,
     });
 
-    this.setTransport(client);
-
     try {
       const response = await client.send(
         CONFIG_API_GATEWAY + `?project=${this.projectId}`,
@@ -44,6 +43,15 @@ export class EventBuilder implements IEventBuilder {
         this.config = data;
       }
 
+      const eventHttpClient = new HTTPTransport({
+        headers: {
+          'x-api-key': `${this.apiKey}`,
+          'x-project-id': `${this.projectId}`,
+          'content-type': 'application/json',
+        },
+        requestTimeout: 1000,
+      });
+      this.setTransport(eventHttpClient);
       this.setupAutoCaptureListener();
     } catch (exception) {
       console.error(`Cannot load config: ${exception}`);
@@ -137,15 +145,33 @@ export class EventBuilder implements IEventBuilder {
     }
 
     try {
-      const encryptedBody = encrypt(
-        this.config.public_key,
-        JSON.stringify(event),
-      );
-      if (encryptedBody === false) {
-        throw new Error('Failed to encrypt event body.');
+      const { key, iv } = generateAESKeyAndIV();
+      const keyString = key.toString();
+      const ivString = iv.toString();
+
+      const encryptedKey = encrypt(this.config.public_key, keyString);
+
+      if (encryptedKey === false) {
+        throw new Error('Failed to encrypt AES key.');
       }
 
-      await this.transport.send(this.config.host, 'POST', encryptedBody);
+      const encryptedIV = encrypt(this.config.public_key, ivString);
+
+      if (encryptedIV === false) {
+        throw new Error('Failed to encrypt AES IV.');
+      }
+
+      const encryptedBody = encryptWithAES({ key, iv }, JSON.stringify(event));
+
+      await this.transport.send(
+        this.config.host,
+        'POST',
+        JSON.stringify({
+          key: encryptedKey,
+          iv: encryptedIV,
+          body: encryptedBody,
+        }),
+      );
     } catch (exception: any) {
       console.error(exception);
     }
