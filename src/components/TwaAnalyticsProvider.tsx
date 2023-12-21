@@ -10,7 +10,6 @@ import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
-import { EventQueue } from '../queue/event.queue';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -27,6 +26,7 @@ export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
 );
 
 const TonConnectLocalStorageKey = 'ton-connect-storage_bridge-connection';
+const TonConnectProviderNameLocalStorageKey = 'ton-connect-ui_preferred-wallet';
 
 export type TwaAnalyticsConfig = {
   host: string;
@@ -52,29 +52,17 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   const telegramWebAppData = loadTelegramWebAppData();
 
   const eventBuilder = useMemo(() => {
-    const queue = new EventQueue();
     return new EventBuilder(
       options.projectId,
       options.apiKey,
       options.appName,
       telegramWebAppData,
-      queue,
     );
   }, []);
 
   useEffect(() => {
-    let currentLocation: null | string = null;
-    const interval = setInterval(() => {
-      const newLocation = location.pathname;
-      if (newLocation !== currentLocation) {
-        eventBuilder.track(EventType.PageView, { path: newLocation });
-        currentLocation = newLocation;
-      }
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
+    const locationPath = location.pathname;
+    eventBuilder.track(`${EventType.PageView} ${locationPath}`, { path: locationPath });
   }, []);
 
   useEffect(() => {
@@ -97,8 +85,13 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
             return;
           }
 
+          const walletProvider = localStorage.getItem(
+            TonConnectProviderNameLocalStorageKey,
+          );
+
           const customProperties = {
             wallet: wallets[0].address,
+            walletProvider: walletProvider || 'unknown',
           };
           lastAddress = wallets[0].address;
 

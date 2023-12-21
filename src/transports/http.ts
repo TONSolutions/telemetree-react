@@ -14,7 +14,7 @@ export const defaultHttpTransportOptions = (
 };
 
 export class HTTPTransport implements Transport {
-  public constructor(protected readonly _options: TransportOptions) {
+  public constructor(protected _options: TransportOptions) {
     if (!('fetch' in window)) {
       throw new Error('Fetch is not available in this browser.');
     }
@@ -22,6 +22,10 @@ export class HTTPTransport implements Transport {
     if (!this._options.headers) {
       this._options.headers = {};
     }
+  }
+
+  public setOptions(options: TransportOptions): void {
+    this._options = options;
   }
 
   public send(

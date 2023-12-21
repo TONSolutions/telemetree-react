@@ -2,8 +2,9 @@ export interface Transport {
   send(
     apiGateway: string,
     method: 'POST' | 'GET',
-    payload: string,
+    payload?: string,
   ): Promise<any>;
+  setOptions(options: TransportOptions): void;
 }
 
 export interface TransportOptions {

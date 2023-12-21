@@ -1,6 +1,6 @@
 export enum EventType {
-  Click = 'click',
-  PageView = 'pageview',
-  Wallet = 'wallet',
-  Closed = 'closed',
+  Click = 'Click',
+  PageView = 'Pageview',
+  Wallet = 'Wallet',
+  Closed = 'Closed',
 }
