@@ -6,7 +6,10 @@ import {
 } from '../constants';
 import { EventType } from '../enum/event-type.enum';
 import { EventPushHandler } from '../event-push-handler';
-import { getCurrentUTCTimestamp } from '../helpers/date.helper';
+import {
+  getCurrentUTCTimestamp,
+  getCurrentUTCTimestampMilliseconds,
+} from '../helpers/date.helper';
 import { encryptMessage } from '../helpers/encryption.helper';
 import { IEventBuilder } from '../interfaces';
 import { TelegramWebAppData } from '../models';
@@ -17,6 +20,7 @@ import { createEvent } from '../utils/create-event';
 export class EventBuilder implements IEventBuilder {
   protected transport: Transport | null = null;
   protected config: TwaAnalyticsConfig | null = null;
+  protected sessionIdentifier: string | null = null;
   protected readonly pushHandler: EventPushHandler = new EventPushHandler(this);
 
   constructor(
@@ -28,6 +32,11 @@ export class EventBuilder implements IEventBuilder {
     this._init();
   }
 
+  public setSessionIdentifier(sessionIdentifier: string): this {
+    this.sessionIdentifier = sessionIdentifier;
+    return this;
+  }
+
   protected async _init(): Promise<void> {
     const client = TransportFactory.getTransport('http', {
       headers: {
@@ -35,6 +44,8 @@ export class EventBuilder implements IEventBuilder {
       },
       requestTimeout: 1000,
     });
+
+    this.setSessionIdentifier(getCurrentUTCTimestampMilliseconds());
 
     try {
       const response = await client.send(
@@ -116,7 +127,6 @@ export class EventBuilder implements IEventBuilder {
   async track(
     eventName: string,
     eventProperties: Record<string, any>,
-    sessionIdentifier?: string,
   ): Promise<void> {
     if (eventName === null) {
       throw new Error('Event name is not set.');
@@ -152,7 +162,7 @@ export class EventBuilder implements IEventBuilder {
       getCurrentUTCTimestamp(),
       eventName.startsWith(DEFAULT_SYSTEM_EVENT_PREFIX),
       eventProperties.wallet || undefined,
-      sessionIdentifier,
+      this.sessionIdentifier || undefined,
     );
 
     return this.pushHandler.push(event);
