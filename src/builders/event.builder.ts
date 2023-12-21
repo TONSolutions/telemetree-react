@@ -6,6 +6,7 @@ import {
 } from '../constants';
 import { EventType } from '../enum/event-type.enum';
 import { EventPushHandler } from '../event-push-handler';
+import { getCurrentUTCTimestamp } from '../helpers/date.helper';
 import { encryptMessage } from '../helpers/encryption.helper';
 import { IEventBuilder } from '../interfaces';
 import { TelegramWebAppData } from '../models';
@@ -115,6 +116,7 @@ export class EventBuilder implements IEventBuilder {
   async track(
     eventName: string,
     eventProperties: Record<string, any>,
+    sessionIdentifier?: string,
   ): Promise<void> {
     if (eventName === null) {
       throw new Error('Event name is not set.');
@@ -147,9 +149,10 @@ export class EventBuilder implements IEventBuilder {
       this.data.platform,
       this.data.chat_type || 'N/A',
       this.data.chat_instance || '0',
-      Math.floor(Date.now() / 1000).toString(),
+      getCurrentUTCTimestamp(),
       eventName.startsWith(DEFAULT_SYSTEM_EVENT_PREFIX),
       eventProperties.wallet || undefined,
+      sessionIdentifier,
     );
 
     return this.pushHandler.push(event);

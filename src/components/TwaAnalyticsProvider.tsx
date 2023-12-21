@@ -10,6 +10,7 @@ import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
+import { getCurrentUTCTimestamp } from '../helpers/date.helper';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -64,7 +65,7 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
     const locationPath = location.pathname;
     eventBuilder.track(`${EventType.PageView} ${locationPath}`, {
       path: locationPath,
-    });
+    }, getCurrentUTCTimestamp());
   }, []);
 
   useEffect(() => {

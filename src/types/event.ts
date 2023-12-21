@@ -25,4 +25,5 @@ export interface BaseEvent {
   timestamp: string;
   isAutocapture: boolean;
   wallet: string | undefined;
+  sessionIdentifier?: string;
 }
