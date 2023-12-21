@@ -1,31 +1,34 @@
 import { TwaAnalyticsConfig } from '../components/TwaAnalyticsProvider';
-import { CONFIG_API_GATEWAY } from '../constants';
+import {
+  CONFIG_API_GATEWAY,
+  DEFAULT_SYSTEM_EVENT_DATA_SEPRARTOR,
+  DEFAULT_SYSTEM_EVENT_PREFIX,
+} from '../constants';
 import { EventType } from '../enum/event-type.enum';
-import { encryptWithAES, generateAESKeyAndIV } from '../helpers/aes.helper';
-import { encrypt } from '../helpers/rsa.helper';
+import { EventPushHandler } from '../event-push-handler';
+import { encryptMessage } from '../helpers/encryption.helper';
 import { IEventBuilder } from '../interfaces';
 import { TelegramWebAppData } from '../models';
-import { EventQueue } from '../queue/event.queue';
-import { HTTPTransport } from '../transports/http';
-import { Transport } from '../types';
+import { TransportFactory } from '../transports/transport-factory';
+import { BaseEvent, Transport } from '../types';
 import { createEvent } from '../utils/create-event';
 
 export class EventBuilder implements IEventBuilder {
   protected transport: Transport | null = null;
   protected config: TwaAnalyticsConfig | null = null;
+  protected readonly pushHandler: EventPushHandler = new EventPushHandler(this);
 
   constructor(
     protected readonly projectId: string,
     protected readonly apiKey: string,
     protected readonly appName: string,
     protected readonly data: TelegramWebAppData,
-    protected readonly queue: EventQueue,
   ) {
     this._init();
   }
 
   protected async _init(): Promise<void> {
-    const client = new HTTPTransport({
+    const client = TransportFactory.getTransport('http', {
       headers: {
         authorization: `Bearer ${this.apiKey}`,
       },
@@ -43,15 +46,18 @@ export class EventBuilder implements IEventBuilder {
         this.config = data;
       }
 
-      const eventHttpClient = new HTTPTransport({
+      client.setOptions({
         headers: {
           'x-api-key': `${this.apiKey}`,
           'x-project-id': `${this.projectId}`,
           'content-type': 'application/json',
         },
-        requestTimeout: 1000,
+        requestTimeout: 1500,
       });
-      this.setTransport(eventHttpClient);
+      this.setTransport(client);
+
+      await this.pushHandler.flush();
+
       this.setupAutoCaptureListener();
     } catch (exception) {
       console.error(`Cannot load config: ${exception}`);
@@ -88,7 +94,10 @@ export class EventBuilder implements IEventBuilder {
           }
           customProperties['text'] = target.innerText;
           customProperties['tag'] = target.tagName.toLowerCase();
-          this.track(EventType.Click, customProperties);
+          this.track(
+            `${DEFAULT_SYSTEM_EVENT_PREFIX} ${EventType.Click}${DEFAULT_SYSTEM_EVENT_DATA_SEPRARTOR}${target.innerText}`,
+            customProperties,
+          );
         }
       });
     }
@@ -112,7 +121,10 @@ export class EventBuilder implements IEventBuilder {
     }
 
     if (!this.data.user?.id) {
-      throw new Error('User ID is not set.');
+      console.error(
+        `Event ${eventName} is not tracked because user is not set.`,
+      );
+      return;
     }
 
     const event = createEvent(
@@ -122,7 +134,7 @@ export class EventBuilder implements IEventBuilder {
         username: this.data.user?.username,
         firstName: this.data.user?.first_name,
         lastName: this.data.user?.last_name,
-        isPremium: this.data.user?.is_premium,
+        isPremium: this.data.user?.is_premium || false,
         writeAccess: this.data.user?.allows_write_to_pm,
       },
       {
@@ -135,33 +147,25 @@ export class EventBuilder implements IEventBuilder {
       this.data.platform,
       this.data.chat_type || 'N/A',
       this.data.chat_instance || '0',
-      new Date().getTime().toString(),
-      eventName === EventType.Click,
+      Math.floor(Date.now() / 1000).toString(),
+      eventName.startsWith(DEFAULT_SYSTEM_EVENT_PREFIX),
       eventProperties.wallet || undefined,
     );
 
+    return this.pushHandler.push(event);
+  }
+
+  public async processEvent(event: BaseEvent): Promise<void> {
     if (this.config === null || this.transport === null) {
-      return this.queue.add(event);
+      console;
+      return;
     }
 
     try {
-      const { key, iv } = generateAESKeyAndIV();
-      const keyString = key.toString();
-      const ivString = iv.toString();
-
-      const encryptedKey = encrypt(this.config.public_key, keyString);
-
-      if (encryptedKey === false) {
-        throw new Error('Failed to encrypt AES key.');
-      }
-
-      const encryptedIV = encrypt(this.config.public_key, ivString);
-
-      if (encryptedIV === false) {
-        throw new Error('Failed to encrypt AES IV.');
-      }
-
-      const encryptedBody = encryptWithAES({ key, iv }, JSON.stringify(event));
+      const { encryptedKey, encryptedIV, encryptedBody } = encryptMessage(
+        this.config.public_key,
+        JSON.stringify(event),
+      );
 
       await this.transport.send(
         this.config.host,
