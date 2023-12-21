@@ -63,9 +63,13 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
 
   useEffect(() => {
     const locationPath = location.pathname;
-    eventBuilder.track(`${EventType.PageView} ${locationPath}`, {
-      path: locationPath,
-    }, getCurrentUTCTimestamp());
+    eventBuilder.track(
+      `${EventType.PageView} ${locationPath}`,
+      {
+        path: locationPath,
+      },
+      getCurrentUTCTimestamp(),
+    );
   }, []);
 
   useEffect(() => {
