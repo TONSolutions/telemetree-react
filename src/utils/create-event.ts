@@ -13,6 +13,7 @@ export const createEvent = (
   timestamp: string,
   isAutocapture: boolean,
   wallet: string | undefined,
+  sessionIdentifier?: string,
 ): BaseEvent => {
   return {
     eventType: eventName,
@@ -27,5 +28,6 @@ export const createEvent = (
     timestamp,
     isAutocapture,
     wallet,
+    sessionIdentifier,
   };
 };
