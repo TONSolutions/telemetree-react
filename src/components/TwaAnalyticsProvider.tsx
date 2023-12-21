@@ -62,7 +62,9 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
 
   useEffect(() => {
     const locationPath = location.pathname;
-    eventBuilder.track(`${EventType.PageView} ${locationPath}`, { path: locationPath });
+    eventBuilder.track(`${EventType.PageView} ${locationPath}`, {
+      path: locationPath,
+    });
   }, []);
 
   useEffect(() => {

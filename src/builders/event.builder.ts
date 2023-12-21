@@ -155,11 +155,11 @@ export class EventBuilder implements IEventBuilder {
     return this.pushHandler.push(event);
   }
 
-  public async processEvent(event: BaseEvent): Promise<void> { 
+  public async processEvent(event: BaseEvent): Promise<void> {
     if (this.config === null || this.transport === null) {
-      console
+      console;
       return;
-    } 
+    }
 
     try {
       const { encryptedKey, encryptedIV, encryptedBody } = encryptMessage(
