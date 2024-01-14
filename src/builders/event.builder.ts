@@ -143,10 +143,9 @@ export class EventBuilder implements IEventBuilder {
       this.appName,
       eventName,
       {
-        
         username: this.data.user?.username || '',
         firstName: this.data.user.first_name,
-        lastName: this.data.user?.last_name|| '',
+        lastName: this.data.user?.last_name || '',
         isPremium: this.data.user?.is_premium || false,
         writeAccess: this.data.user?.allows_write_to_pm || false,
       },

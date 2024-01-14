@@ -7,6 +7,11 @@ export const webAppHandler =
     ? window.Telegram.WebApp
     : null;
 
+export const webViewHandler =
+  typeof window !== 'undefined' && window?.Telegram?.WebView
+    ? window.Telegram.WebView
+    : null;
+
 /**
  * @returns TelegramWebAppData
  */
