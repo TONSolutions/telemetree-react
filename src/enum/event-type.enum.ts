@@ -3,4 +3,5 @@ export enum EventType {
   PageView = 'Pageview',
   Wallet = 'Wallet',
   Closed = 'Closed',
+  MainButtonPressed = 'MainButtonPressed',
 }

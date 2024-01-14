@@ -26,4 +26,9 @@ export declare namespace Telegram {
     initDataUnsafe: InitData;
     platform: string;
   }
+
+  interface WebView {
+    postEvent: (event: string, trigger: () => {}, data: object) => void;
+    onEvent: (event: string, callback: (event: string) => void) => void;
+  }
 }

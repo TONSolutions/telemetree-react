@@ -7,7 +7,7 @@ import {
   useMemo,
 } from 'react';
 import { EventBuilder } from '../builders';
-import { loadTelegramWebAppData } from '../telegram/telegram';
+import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
 import { getCurrentUTCTimestamp } from '../helpers/date.helper';
@@ -59,6 +59,12 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       options.appName,
       telegramWebAppData,
     );
+  }, []);
+
+  useEffect(() => {
+    webViewHandler?.onEvent('main_button_pressed', (event: string) => {
+      eventBuilder.track(EventType.MainButtonPressed, {});
+    });
   }, []);
 
   useEffect(() => {
