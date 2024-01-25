@@ -1,6 +1,6 @@
 {
-  "name": "@tonsolutions/analytics-react",
-  "version": "1.0.6",
+  "name": "@tonsolutions/telemetree-react",
+  "version": "1.0.7",
   "main": "./lib/index.сjs",
   "module": "./lib/index.mjs",
   "types": "./lib/index.d.ts",
@@ -41,17 +41,18 @@
     "react": ">=17.0.0"
   },
   "dependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.9.6",
     "crypto-js": "^4.2.0",
     "jsencrypt": "^3.3.2",
     "url": ">=0.11.3"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TON-Commerce/analytics-react.git"
+    "url": "git+https://github.com/TONSolutions/telemetree-react.git"
   },
   "bugs": {
-    "url": "https://github.com/TON-Commerce/analytics-react/issues"
+    "url": "https://github.com/TONSolutions/telemetree-react/issues"
   },
-  "homepage": "https://github.com/TON-Commerce/analytics-react#readme",
-  "description": "TON Solutions Analytics library for React.js"
+  "homepage": "https://github.com/TONSolutions/telemetree-react#readme",
+  "description": "TON Solutions Telemetree library for React.js"
 }
