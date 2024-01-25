@@ -1,15 +1,15 @@
-# TON Solutions Analytics library for React.js
+# TON Solutions Telemetree library for React.js
 
 ## Installation
 
-Install it from [NPM](https://www.npmjs.com/package/@tonsolutions/analytics-react):
+Install it from [NPM](https://www.npmjs.com/package/@tonsolutions/telemetree-react):
 ```
-$ npm install @tonsolutions/analytics-react
+$ npm install @tonsolutions/telemetree-react
 ```
 
 ## How to use
 ```javascript
-import { TwaAnalyticsProvider } from '@tonsolutions/analytics-react';
+import { TwaAnalyticsProvider } from '@tonsolutions/telemetree-react';
 
 export function App() {
     return (
@@ -25,7 +25,7 @@ export function App() {
 ```
 
 ```js
-import { useTWAEvent } from '@tonsolutions/analytics-react';
+import { useTWAEvent } from '@tonsolutions/telemetree-react';
 
 const builder = useTWAEvent();
 builder.track('transfer', {

@@ -19,7 +19,7 @@ export default defineConfig({
     lib: {
       formats: ['es', 'cjs'],
       entry: path.resolve('src/index.ts'),
-      name: '@tonsolutions/analytics-react',
+      name: '@tonsolutions/telemetree-react',
       fileName: (format) => {
         switch (format) {
           case 'es':
