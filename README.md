@@ -16,7 +16,7 @@ export function App() {
         <TwaAnalyticsProvider
             projectId='YOUR_PROJECT_ID'
             apiKey='YOUR_API_KEY'
-        	appName='YOUR_APPLICATION_NAME'
+            appName='YOUR_APPLICATION_NAME'
         >
         ...
         </TwaAnalyticsProvider>
