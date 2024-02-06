@@ -1,7 +1,7 @@
 import { TwaAnalyticsConfig } from '../components/TwaAnalyticsProvider';
 import {
   CONFIG_API_GATEWAY,
-  DEFAULT_SYSTEM_EVENT_DATA_SEPRARTOR,
+  DEFAULT_SYSTEM_EVENT_DATA_SEPARATOR,
   DEFAULT_SYSTEM_EVENT_PREFIX,
 } from '../constants';
 import { EventType } from '../enum/event-type.enum';
@@ -107,7 +107,7 @@ export class EventBuilder implements IEventBuilder {
           customProperties['text'] = target.innerText;
           customProperties['tag'] = target.tagName.toLowerCase();
           this.track(
-            `${DEFAULT_SYSTEM_EVENT_PREFIX} ${EventType.Click}${DEFAULT_SYSTEM_EVENT_DATA_SEPRARTOR}${target.innerText}`,
+            `${DEFAULT_SYSTEM_EVENT_PREFIX} ${EventType.Click}${DEFAULT_SYSTEM_EVENT_DATA_SEPARATOR}${target.innerText}`,
             customProperties,
           );
         }

@@ -3,7 +3,7 @@ export const CONFIG_API_GATEWAY =
 export const API_GATEWAY_REQUEST_TIMEOUT = 10000;
 
 export const DEFAULT_SYSTEM_EVENT_PREFIX = '[TS]';
-export const DEFAULT_SYSTEM_EVENT_DATA_SEPRARTOR = ' | ';
+export const DEFAULT_SYSTEM_EVENT_DATA_SEPARATOR = ' | ';
 
 export const BASE_OPTIONS = {
   apiGateway: CONFIG_API_GATEWAY,
