@@ -29,6 +29,13 @@ export declare namespace Telegram {
 
   interface WebView {
     postEvent: (event: string, trigger: () => {}, data: object) => void;
-    onEvent: (event: string, callback: (event: string, data?: object) => void) => void;
+    onEvent: (
+      event: string,
+      callback: (event: string, data?: object) => void,
+    ) => void;
+    offEvent: (
+      event: string,
+      callback: (event: string, data?: object) => void,
+    ) => void;
   }
 }
