@@ -70,37 +70,52 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       eventBuilder.track(EventType.SettingsButtonPressed, {});
     });
 
-    webViewHandler?.onEvent('invoice_closed', (event: string, data?: object) => {
-      eventBuilder.track(EventType.InvoiceClosed, {
-        ...data,
-      });
-    });
+    webViewHandler?.onEvent(
+      'invoice_closed',
+      (event: string, data?: object) => {
+        eventBuilder.track(EventType.InvoiceClosed, {
+          ...data,
+        });
+      },
+    );
 
-    webViewHandler?.onEvent('clipboard_text_received', (event: string, data?: object) => {
-      eventBuilder.track(EventType.ClipboardTextReceived, {
-        ...data,
-      });
-    });
+    webViewHandler?.onEvent(
+      'clipboard_text_received',
+      (event: string, data?: object) => {
+        eventBuilder.track(EventType.ClipboardTextReceived, {
+          ...data,
+        });
+      },
+    );
 
     webViewHandler?.onEvent('popup_closed', (event: string, data?: object) => {
       eventBuilder.track(EventType.PopupClosed, {});
     });
 
-    webViewHandler?.onEvent('write_access_requested', (event: string, data?: object) => {
-      eventBuilder.track(EventType.WriteAccessRequested, {});
-    });
+    webViewHandler?.onEvent(
+      'write_access_requested',
+      (event: string, data?: object) => {
+        eventBuilder.track(EventType.WriteAccessRequested, {});
+      },
+    );
 
-    webViewHandler?.onEvent('qr_text_received', (event: string, data?: object) => {
-      eventBuilder.track(EventType.QRTextReceived, {
-        ...data,
-      });
-    });
+    webViewHandler?.onEvent(
+      'qr_text_received',
+      (event: string, data?: object) => {
+        eventBuilder.track(EventType.QRTextReceived, {
+          ...data,
+        });
+      },
+    );
 
-    webViewHandler?.onEvent('phone_requested', (event: string, data?: object) => {
-      eventBuilder.track(EventType.PhoneRequested, {
-        ...data,
-      });
-    });
+    webViewHandler?.onEvent(
+      'phone_requested',
+      (event: string, data?: object) => {
+        eventBuilder.track(EventType.PhoneRequested, {
+          ...data,
+        });
+      },
+    );
   }, []);
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-import { URLSearchParams } from 'url';
 import { Telegram } from './web-app';
 import { TelegramWebAppData } from '../models';
 
@@ -43,10 +42,16 @@ export const loadFromHash = (): TelegramWebAppData => {
     decodeURIComponent(document.location.hash.substring(1)),
   );
   const urlParams = new URLSearchParams(hash);
+  const tgWebAppData = urlParams.get('tgWebAppData');
 
+  if (tgWebAppData === null) {
+    throw new Error('Telegram WebApp is not loaded.');
+  }
+
+  const userParams = new URLSearchParams(tgWebAppData);
   return {
-    user: urlParams.get('user')
-      ? JSON.parse(urlParams.get('user') as string)
+    user: userParams.get('user')
+      ? JSON.parse(userParams.get('user') as string)
       : undefined,
     chat_type: urlParams.get('chat_type') as Telegram.InitData['chat_type'],
     chat_instance: urlParams.get('chat_instance') || undefined,
