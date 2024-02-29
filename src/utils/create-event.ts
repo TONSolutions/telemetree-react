@@ -14,6 +14,7 @@ export const createEvent = (
   isAutocapture: boolean,
   wallet: string | undefined,
   sessionIdentifier?: string,
+  eventSource: string = 'telemetree_twa',
 ): BaseEvent => {
   return {
     eventType: eventName,
@@ -29,5 +30,6 @@ export const createEvent = (
     isAutocapture,
     wallet,
     sessionIdentifier,
+    eventSource,
   };
 };
