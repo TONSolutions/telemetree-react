@@ -1,6 +1,11 @@
-# TON Solutions Telemetree library for React.js
-
 ![](https://tc-images-api.s3.eu-central-1.amazonaws.com/gif_cropped.gif)
+
+# TON Solutions Telemetree library for React.js
+![Static Badge](https://img.shields.io/badge/build-passing-brightgreen?style=flat) ![GitHub top language](https://img.shields.io/github/languages/top/tonsolutions/telemetree-react) ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/tonsolutions/telemetree-react)
+
+To learn more about the SDK, here are some useful links:
+- Documentation: https://docs.ton.solutions/
+- Boilerplate: https://github.com/TONSolutions/react-twa-boilerplate
 
 ## Installation
 
