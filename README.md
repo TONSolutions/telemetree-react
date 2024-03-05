@@ -1,5 +1,7 @@
 # TON Solutions Telemetree library for React.js
 
+![](https://tc-images-api.s3.eu-central-1.amazonaws.com/gif_cropped.gif)
+
 ## Installation
 
 Install it from [NPM](https://www.npmjs.com/package/@tonsolutions/telemetree-react):
