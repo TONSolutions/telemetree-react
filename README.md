@@ -15,6 +15,13 @@ $ npm install @tonsolutions/telemetree-react
 ```
 
 ## How to use
+Call this script in `<head>`:
+
+```html
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+```
+In your app:
+
 ```javascript
 import { TwaAnalyticsProvider } from '@tonsolutions/telemetree-react';
 
