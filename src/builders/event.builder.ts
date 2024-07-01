@@ -134,7 +134,7 @@ export class EventBuilder implements IEventBuilder {
 
     if (!this.data.user?.id) {
       console.error(
-        `Event ${eventName} is not tracked because the app is not running inside Telegram.`,
+        `Event ${eventName} is not tracked because user is not set.`,
       );
       return;
     }
