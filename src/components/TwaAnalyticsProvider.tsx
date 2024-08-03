@@ -10,7 +10,6 @@ import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
-import { getCurrentUTCTimestamp } from '../helpers/date.helper';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -25,6 +24,8 @@ export type TwaAnalyticsProviderProps = {
 export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
   null,
 );
+
+const WalletConnectedKey = 'walletConnected';
 
 const TonConnectLocalStorageKey = 'ton-connect-storage_bridge-connection';
 const TonConnectProviderNameLocalStorageKey = 'ton-connect-ui_preferred-wallet';
@@ -128,40 +129,38 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   useEffect(() => {
     let lastAddress: null | string = null;
     const interval = setInterval(() => {
-      const tonConnectStoredData = localStorage.getItem(
-        TonConnectLocalStorageKey,
-      );
+      const tonConnectStoredData = localStorage.getItem(TonConnectLocalStorageKey);
       if (tonConnectStoredData) {
         try {
-          const parsedData = JSON.parse(
-            tonConnectStoredData,
-          ) as TonConnectStorageData;
+          const parsedData = JSON.parse(tonConnectStoredData) as TonConnectStorageData;
           const wallets = parsedData.connectEvent?.payload?.items || [];
           if (wallets && wallets.length === 0) {
             return;
           }
-
-          if (lastAddress === wallets[0].address) {
-            return;
+  
+          const currentAddress = wallets[0].address;
+          const walletConnected = localStorage.getItem(WalletConnectedKey);
+  
+          if (lastAddress !== currentAddress || !walletConnected) {
+            const walletProvider = localStorage.getItem(TonConnectProviderNameLocalStorageKey);
+  
+            const customProperties = {
+              wallet: currentAddress,
+              walletProvider: walletProvider || 'unknown',
+            };
+            lastAddress = currentAddress;
+  
+            // Store the connection status
+            localStorage.setItem(WalletConnectedKey, 'true');
+  
+            eventBuilder.track(EventType.Wallet, customProperties);
           }
-
-          const walletProvider = localStorage.getItem(
-            TonConnectProviderNameLocalStorageKey,
-          );
-
-          const customProperties = {
-            wallet: wallets[0].address,
-            walletProvider: walletProvider || 'unknown',
-          };
-          lastAddress = wallets[0].address;
-
-          eventBuilder.track(EventType.Wallet, customProperties);
         } catch (exception) {
           console.error(exception);
         }
       }
     }, 1000);
-
+  
     return () => {
       clearInterval(interval);
     };
