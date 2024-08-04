@@ -41,6 +41,7 @@
     "react": ">=17.0.0"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^4.4.3",
     "crypto-js": "^4.2.0",
     "jsencrypt": "^3.3.2"
   },

@@ -27,4 +27,5 @@ export interface BaseEvent {
   wallet: string | undefined;
   sessionIdentifier?: string;
   eventSource: string;
+  fingerprint?: string | null;
 }

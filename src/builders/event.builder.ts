@@ -16,12 +16,25 @@ import { TelegramWebAppData } from '../models';
 import { TransportFactory } from '../transports/transport-factory';
 import { BaseEvent, Transport } from '../types';
 import { createEvent } from '../utils/create-event';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 export class EventBuilder implements IEventBuilder {
   protected transport: Transport | null = null;
   protected config: TwaAnalyticsConfig | null = null;
   protected sessionIdentifier: string | null = null;
   protected readonly pushHandler: EventPushHandler = new EventPushHandler(this);
+
+  private fingerprint: string | null = null;
+
+  private async initializeFingerprint(): Promise<void> {
+    try {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      this.fingerprint = result.visitorId;
+    } catch (error) {
+      console.error('Error initializing fingerprint:', error);
+    }
+  }
 
   constructor(
     protected readonly projectId: string,
@@ -44,6 +57,8 @@ export class EventBuilder implements IEventBuilder {
       },
       requestTimeout: 1000,
     });
+
+    await this.initializeFingerprint();
 
     this.setSessionIdentifier(getCurrentUTCTimestampMilliseconds());
 
@@ -164,6 +179,8 @@ export class EventBuilder implements IEventBuilder {
       eventProperties.wallet || undefined,
       this.sessionIdentifier || undefined,
     );
+
+    event.fingerprint = this.fingerprint;
 
     return this.pushHandler.push(event);
   }
