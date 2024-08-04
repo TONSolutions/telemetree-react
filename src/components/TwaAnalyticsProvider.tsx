@@ -150,7 +150,6 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
             };
             lastAddress = currentAddress;
   
-            // Store the connection status
             localStorage.setItem(WalletConnectedKey, 'true');
   
             eventBuilder.track(EventType.Wallet, customProperties);

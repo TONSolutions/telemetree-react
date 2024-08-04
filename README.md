@@ -4,7 +4,7 @@
 ![Static Badge](https://img.shields.io/badge/build-passing-brightgreen?style=flat) ![GitHub top language](https://img.shields.io/github/languages/top/tonsolutions/telemetree-react) ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/tonsolutions/telemetree-react)
 
 To learn more about the SDK, here are some useful links:
-- Documentation: https://docs.ton.solutions/
+- Documentation: https://docs.telemetree.io/
 - Boilerplate: https://github.com/TONSolutions/react-twa-boilerplate
 
 ## Installation
