@@ -11,33 +11,30 @@ export default defineConfig({
       })
   ],
   build: {
-    target: 'es6',
+    target: 'es2015',
     outDir: 'lib',
     emptyOutDir: true,
     minify: false,
     sourcemap: true,
     lib: {
       formats: ['es', 'cjs'],
-      entry: path.resolve('src/index.ts'),
+      entry: path.resolve(__dirname, 'src/index.ts'),
       name: '@tonsolutions/telemetree-react',
-      fileName: (format) => {
-        switch (format) {
-          case 'es':
-            return 'index.mjs';
-          case 'cjs':
-            return 'index.cjs';
-          default:
-            throw new Error('Unknown format');
-        }
-      }
+      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`
     },
     rollupOptions: {
-      external: ['react'],
+      external: ['react', 'react-dom'],
       output: {
         globals: {
           react: 'React',
+          'react-dom': 'ReactDOM',
         }
       }
     }
-  }
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 })
