@@ -9,6 +9,7 @@ import { TransportFactory } from '../transports/transport-factory';
 import { BaseEvent, Transport } from '../types';
 import { createEvent } from '../utils/create-event';
 import { encryptMessage } from '../helpers/encryption.helper';
+import { Logger } from '../utils/logger'
 
 export class EventBuilder implements IEventBuilder {
   private transport: Transport | null = null;
@@ -147,7 +148,10 @@ export class EventBuilder implements IEventBuilder {
 
   public async processEvent(event: BaseEvent): Promise<void> {
     if (!this.config || !this.transport) {
-      console.error('Config or transport not initialized');
+      Logger.error('EventBuilder: Config or transport not initialized', {
+        configExists: !!this.config,
+        transportExists: !!this.transport
+      });
       return;
     }
 
@@ -157,13 +161,32 @@ export class EventBuilder implements IEventBuilder {
         JSON.stringify(event),
       );
 
-      await this.transport.send(
+      const response = await this.transport.send(
         this.config.host,
         'POST',
         JSON.stringify({ key: encryptedKey, iv: encryptedIV, body: encryptedBody }),
       );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      Logger.info('Event processed successfully', { eventType: event.eventType });
     } catch (error) {
-      console.error('Error processing event:', error);
+      if (error instanceof Error) {
+        Logger.error('Error processing event', {
+          error: error.message,
+          stack: error.stack,
+          eventType: event.eventType
+        });
+      } else {
+        Logger.error('Unknown error processing event', {
+          error,
+          eventType: event.eventType
+        });
+      }
+      // Optionally, rethrow the error if you want calling code to handle it
+      // throw error;
     }
   }
 }

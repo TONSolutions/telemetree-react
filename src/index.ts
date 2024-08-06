@@ -1,3 +1,7 @@
+import { Logger, LogLevel } from './utils/logger';
+
+Logger.setLevel(process.env.NODE_ENV === 'production' ? LogLevel.INFO : LogLevel.DEBUG);
+
 export { useTWAEvent } from './hooks';
 export {
   type TwaAnalyticsProviderProps,
