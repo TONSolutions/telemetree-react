@@ -23,15 +23,13 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', 'crypto-js', 'jsencrypt'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-        },
-        manualChunks: {
-          'crypto-utils': ['crypto-js', 'jsencrypt'],
-          'telegram-utils': ['./src/telegram'],
+          'crypto-js': 'CryptoJS',
+          'jsencrypt': 'JSEncrypt',
         },
       },
     },
@@ -48,5 +46,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['crypto-js', 'jsencrypt'],
+  },
+  resolve: {
+    alias: {
+      './src': path.resolve(__dirname, 'src'),
+    },
   },
 })
