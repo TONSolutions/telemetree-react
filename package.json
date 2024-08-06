@@ -70,6 +70,9 @@
     "type": "git",
     "url": "git+https://github.com/TONSolutions/telemetree-react.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://github.com/TONSolutions/telemetree-react/issues"
   },
