@@ -53,7 +53,15 @@ export class TaskManager {
         throw new Error('Failed to fetch tasks');
       }
 
-      const newTasks: Task[] = await response.json();
+      const data = await response.json();
+
+      // Check if the response has a tasks property and it's an array
+      if (!data.tasks || !Array.isArray(data.tasks)) {
+        console.error('API did not return a valid tasks array:', data);
+        return;
+      }
+
+      const newTasks: Task[] = data.tasks;
       const currentTime = Math.floor(Date.now() / 1000);
       const tasksWithExpiration = newTasks.map((task) => ({
         ...task,
@@ -66,6 +74,9 @@ export class TaskManager {
         QUANTITY,
       );
       this.setStoredTasks(updatedTasks);
+
+      // Optionally, you can store the expiration from the API response
+      // localStorage.setItem('tasksExpiration', data.expiration);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
