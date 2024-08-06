@@ -1,55 +1,43 @@
-import { defineConfig, PluginOption } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from "path";
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
   plugins: [
-    react(),
-    dts({
-      insertTypesEntry: true,
-    }),
+      react(),
+      dts({
+        insertTypesEntry: true
+      })
   ],
   build: {
-    target: 'es2015',
+    target: 'es6',
     outDir: 'lib',
     emptyOutDir: true,
-    minify: 'terser',
+    minify: false,
     sourcemap: true,
     lib: {
       formats: ['es', 'cjs'],
       entry: path.resolve('src/index.ts'),
       name: '@tonsolutions/telemetree-react',
-      fileName: (format) => `index.${format}.js`,
+      fileName: (format) => {
+        switch (format) {
+          case 'es':
+            return 'index.mjs';
+          case 'cjs':
+            return 'index.cjs';
+          default:
+            throw new Error('Unknown format');
+        }
+      }
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'crypto-js', 'jsencrypt'],
+      external: ['react'],
       output: {
         globals: {
           react: 'React',
-          'react-dom': 'ReactDOM',
-          'crypto-js': 'CryptoJS',
-          'jsencrypt': 'JSEncrypt',
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-    terserOptions: {
-      format: {
-        comments: false,
-      },
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
-  },
-  optimizeDeps: {
-    include: ['crypto-js', 'jsencrypt'],
-  },
-  resolve: {
-    alias: {
-      './src': path.resolve(__dirname, 'src'),
-    },
-  },
+        }
+      }
+    }
+  }
 })
