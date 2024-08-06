@@ -10,6 +10,7 @@ import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
+import { getConfig } from '../config';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -37,6 +38,15 @@ export type TwaAnalyticsConfig = {
   auto_capture_classes: string[];
   public_key: string;
 };
+
+function getElementProperties(element: HTMLElement): Record<string, string> {
+  return {
+    tagName: element.tagName,
+    id: element.id,
+    className: element.className,
+    // Add any other properties you want to capture
+  };
+}
 
 /**
  * @param children JSX to insert.
@@ -129,29 +139,35 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   useEffect(() => {
     let lastAddress: null | string = null;
     const interval = setInterval(() => {
-      const tonConnectStoredData = localStorage.getItem(TonConnectLocalStorageKey);
+      const tonConnectStoredData = localStorage.getItem(
+        TonConnectLocalStorageKey,
+      );
       if (tonConnectStoredData) {
         try {
-          const parsedData = JSON.parse(tonConnectStoredData) as TonConnectStorageData;
+          const parsedData = JSON.parse(
+            tonConnectStoredData,
+          ) as TonConnectStorageData;
           const wallets = parsedData.connectEvent?.payload?.items || [];
           if (wallets && wallets.length === 0) {
             return;
           }
-  
+
           const currentAddress = wallets[0].address;
           const walletConnected = localStorage.getItem(WalletConnectedKey);
-  
+
           if (lastAddress !== currentAddress || !walletConnected) {
-            const walletProvider = localStorage.getItem(TonConnectProviderNameLocalStorageKey);
-  
+            const walletProvider = localStorage.getItem(
+              TonConnectProviderNameLocalStorageKey,
+            );
+
             const customProperties = {
               wallet: currentAddress,
               walletProvider: walletProvider || 'unknown',
             };
             lastAddress = currentAddress;
-  
+
             localStorage.setItem(WalletConnectedKey, 'true');
-  
+
             eventBuilder.track(EventType.Wallet, customProperties);
           }
         } catch (exception) {
@@ -159,11 +175,31 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
         }
       }
     }, 1000);
-  
+
     return () => {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    const config = getConfig();
+    if (eventBuilder.getConfig()?.auto_capture) {
+      const trackTags =
+        eventBuilder
+          .getConfig()
+          ?.auto_capture_tags?.map((tag: string) => tag.toUpperCase()) ?? [];
+      document.body?.addEventListener('click', (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        if (target && trackTags.includes(target.tagName)) {
+          const customProperties = getElementProperties(target);
+          eventBuilder.track(
+            `${config.defaultSystemEventPrefix} ${EventType.Click}${config.defaultSystemEventPrefix}${target.innerText}`,
+            customProperties,
+          );
+        }
+      });
+    }
+  }, [eventBuilder]);
 
   return (
     <TwaAnalyticsProviderContext.Provider value={eventBuilder}>

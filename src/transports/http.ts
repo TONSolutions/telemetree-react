@@ -1,15 +1,17 @@
 import { Transport, TransportOptions } from '../types';
+import { getConfig } from '../config';
 
 export const defaultHttpTransportOptions = (
   apiKey: string,
   method: string = 'POST',
 ): TransportOptions => {
+  const config = getConfig();
   return {
     headers: {
       'Content-Type': 'application/json',
       'X-Api-Key': apiKey,
     },
-    requestTimeout: 10000,
+    requestTimeout: config.requestTimeout,
   };
 };
 

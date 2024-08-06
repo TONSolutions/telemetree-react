@@ -1,4 +1,4 @@
-import { Telegram } from "./src/telegram";
+import { Telegram } from './src/telegram';
 
 declare global {
   interface Window {
