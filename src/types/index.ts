@@ -4,3 +4,7 @@ export {
   type EventUserDetails,
   type EventDetails,
 } from './event';
+export interface Task {
+  id: string;
+  expirationTime: number;
+}

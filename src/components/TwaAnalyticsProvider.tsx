@@ -11,6 +11,7 @@ import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
 import { getConfig } from '../config';
+import { TaskManager } from '../utils/taskManager';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -70,6 +71,11 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       options.appName,
       telegramWebAppData,
     );
+  }, []);
+
+  useEffect(() => {
+    const taskManager = new TaskManager();
+    taskManager.initializeTasks();
   }, []);
 
   useEffect(() => {
