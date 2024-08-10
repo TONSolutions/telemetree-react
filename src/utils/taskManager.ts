@@ -60,9 +60,10 @@ export class TaskManager {
         return;
       }
 
+      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
       const newTasks: Task[] = data.tasks.map((task: any) => ({
         ...task,
-        expirationTime: Math.floor(Date.now() / 1000) + EXPIRATION_TIME * 3600, // Convert hours to seconds
+        expirationTime: currentTime + EXPIRATION_TIME * 3600, // Add expiration time in seconds
       }));
 
       const existingTasks = this.getStoredTasks();
