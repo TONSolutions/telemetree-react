@@ -1,9 +1,9 @@
 import { Task } from '../types';
 
 const API_ENDPOINT =
-  'https://analytics-backend-python-7wtgww6n3.vercel.app/public-api/ads_network/fetch';
+  'https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/ads-network/fetch';
 const ADS_USER_ID = '7c77f83b-6c77-4123-bdc3-d202d45a98b8';
-const EXPIRATION_TIME = 172800; // 48 hours in seconds
+const EXPIRATION_TIME = 48; // 48 hours
 const QUANTITY = 5;
 
 export class TaskManager {
@@ -55,30 +55,22 @@ export class TaskManager {
 
       const data = await response.json();
 
-      // Check if the response has a tasks property and it's an array
       if (!data.tasks || !Array.isArray(data.tasks)) {
         console.error('API did not return a valid tasks array:', data);
         return;
       }
 
-      const newTasks: Task[] = data.tasks;
-      const currentTime = Math.floor(Date.now() / 1000);
-      const tasksWithExpiration = newTasks.map((task) => ({
+      const newTasks: Task[] = data.tasks.map((task: any) => ({
         ...task,
-        expirationTime: currentTime + EXPIRATION_TIME,
+        expirationTime: Math.floor(Date.now() / 1000) + EXPIRATION_TIME * 3600, // Convert hours to seconds
       }));
 
       const existingTasks = this.getStoredTasks();
-      const updatedTasks = [...existingTasks, ...tasksWithExpiration].slice(
-        0,
-        QUANTITY,
-      );
+      const updatedTasks = [...existingTasks, ...newTasks].slice(0, QUANTITY);
       this.setStoredTasks(updatedTasks);
-
-      // Optionally, you can store the expiration from the API response
-      // localStorage.setItem('tasksExpiration', data.expiration);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
   }
 }
+
