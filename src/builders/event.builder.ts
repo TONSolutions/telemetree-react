@@ -25,6 +25,7 @@ export class EventBuilder implements IEventBuilder {
     private readonly apiKey: string,
     private readonly appName: string,
     private readonly data: TelegramWebAppData,
+    private readonly adsUserId?: string,
   ) {
     this.init();
   }

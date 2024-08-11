@@ -5,13 +5,13 @@ export {
   type EventDetails,
 } from './event';
 export interface Task {
-  id: string;
-  type: string;
-  platform: string;
+  id: number;
+  type: number;
+  platform: number;
   name: string;
   key_action: string;
   url: string;
-  description: string | null;
-  image_url: string | null;
+  description: string;
+  image_url: string;
   expirationTime: number;
 }

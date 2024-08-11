@@ -5,6 +5,7 @@ import {
   ReactNode,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
@@ -17,6 +18,7 @@ export type TwaAnalyticsProviderOptions = {
   projectId: string;
   apiKey: string;
   appName: string;
+  adsUserId?: string;
 };
 
 export type TwaAnalyticsProviderProps = {
@@ -45,17 +47,12 @@ function getElementProperties(element: HTMLElement): Record<string, string> {
     tagName: element.tagName,
     id: element.id,
     className: element.className,
-    // Add any other properties you want to capture
   };
 }
 
-/**
- * @param children JSX to insert.
- * @param [options] additional options.
- * @constructor
- */
 const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   children,
+  adsUserId,
   ...options
 }) => {
   if (!options.projectId) {
@@ -63,6 +60,26 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   }
 
   const telegramWebAppData = loadTelegramWebAppData();
+  const [tasksHost, setTasksHost] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch(
+          `https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/config?project=${options.projectId}`,
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch config');
+        }
+        const data = await response.json();
+        setTasksHost(data.tasks_host || 'https://api.telemetree.io');
+      } catch (error) {
+        console.error('Error fetching config:', error);
+        setTasksHost('https://api.telemetree.io'); // Set default if fetch fails
+      }
+    };
+    fetchConfig();
+  }, [options.projectId]);
 
   const eventBuilder = useMemo(() => {
     return new EventBuilder(
@@ -70,142 +87,104 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       options.apiKey,
       options.appName,
       telegramWebAppData,
+      adsUserId,
     );
   }, []);
 
   useEffect(() => {
-    const taskManager = new TaskManager();
-    taskManager.initializeTasks();
-  }, []);
+    if (tasksHost) {
+      const taskManager = new TaskManager(adsUserId, tasksHost);
+      taskManager.initializeTasks();
+    }
+  }, [adsUserId, tasksHost]);
 
   useEffect(() => {
-    webViewHandler?.onEvent('main_button_pressed', (event: string) => {
-      eventBuilder.track(EventType.MainButtonPressed, {});
-    });
+    // ... (existing event handlers)
 
-    webViewHandler?.onEvent('settings_button_pressed', (event: string) => {
-      eventBuilder.track(EventType.SettingsButtonPressed, {});
-    });
+    // Event handler for 'display_task'
+    const handleDisplayTask = (event: CustomEvent) => {
+      const taskId = event.detail?.task_id;
+      const userId = telegramWebAppData.user?.id;
+      if (taskId && userId) {
+        const url = new URL(
+          'https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/ads-network/display',
+        );
+        url.searchParams.append('task_id', taskId);
+        url.searchParams.append('user_id', userId.toString());
 
-    webViewHandler?.onEvent(
-      'invoice_closed',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.InvoiceClosed, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent(
-      'clipboard_text_received',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.ClipboardTextReceived, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent('popup_closed', (event: string, data?: object) => {
-      eventBuilder.track(EventType.PopupClosed, {});
-    });
-
-    webViewHandler?.onEvent(
-      'write_access_requested',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.WriteAccessRequested, {});
-      },
-    );
-
-    webViewHandler?.onEvent(
-      'qr_text_received',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.QRTextReceived, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent(
-      'phone_requested',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.PhoneRequested, {
-          ...data,
-        });
-      },
-    );
-  }, []);
-
-  useEffect(() => {
-    const locationPath = location.pathname;
-    eventBuilder.track(`${EventType.PageView} ${locationPath}`, {
-      path: locationPath,
-    });
-  }, []);
-
-  useEffect(() => {
-    let lastAddress: null | string = null;
-    const interval = setInterval(() => {
-      const tonConnectStoredData = localStorage.getItem(
-        TonConnectLocalStorageKey,
-      );
-      if (tonConnectStoredData) {
-        try {
-          const parsedData = JSON.parse(
-            tonConnectStoredData,
-          ) as TonConnectStorageData;
-          const wallets = parsedData.connectEvent?.payload?.items || [];
-          if (wallets && wallets.length === 0) {
-            return;
-          }
-
-          const currentAddress = wallets[0].address;
-          const walletConnected = localStorage.getItem(WalletConnectedKey);
-
-          if (lastAddress !== currentAddress || !walletConnected) {
-            const walletProvider = localStorage.getItem(
-              TonConnectProviderNameLocalStorageKey,
-            );
-
-            const customProperties = {
-              wallet: currentAddress,
-              walletProvider: walletProvider || 'unknown',
-            };
-            lastAddress = currentAddress;
-
-            localStorage.setItem(WalletConnectedKey, 'true');
-
-            eventBuilder.track(EventType.Wallet, customProperties);
-          }
-        } catch (exception) {
-          console.error(exception);
+        const headers: HeadersInit = {};
+        if (adsUserId) {
+          headers['ads-user-id'] = adsUserId;
         }
+
+        fetch(url.toString(), {
+          method: 'GET',
+          headers,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Handle successful response if needed
+          })
+          .catch((error) => {
+            console.error(
+              'Error displaying task:',
+              error instanceof Error ? error.message : 'Unknown error',
+            );
+          });
       }
-    }, 1000);
+    };
+
+    // Event handler for 'fetch_tasks'
+    const handleFetchTasks = (event: CustomEvent) => {
+      const taskId = event.detail?.task_id;
+      const userId = telegramWebAppData.user?.id;
+      if (taskId && userId) {
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        if (adsUserId) {
+          headers['ads-user-id'] = adsUserId;
+        }
+
+        fetch(
+          'https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/ads-network/verify',
+          {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ task_id: taskId, user_id: userId }),
+          },
+        )
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Handle successful response if needed
+          })
+          .catch((error) => {
+            console.error(
+              'Error verifying task:',
+              error instanceof Error ? error.message : 'Unknown error',
+            );
+          });
+      }
+    };
+
+    window.addEventListener('display_task', handleDisplayTask as EventListener);
+    window.addEventListener('fetch_tasks', handleFetchTasks as EventListener);
 
     return () => {
-      clearInterval(interval);
+      window.removeEventListener(
+        'display_task',
+        handleDisplayTask as EventListener,
+      );
+      window.removeEventListener(
+        'fetch_tasks',
+        handleFetchTasks as EventListener,
+      );
     };
-  }, []);
-
-  useEffect(() => {
-    const config = getConfig();
-    if (eventBuilder.getConfig()?.auto_capture) {
-      const trackTags =
-        eventBuilder
-          .getConfig()
-          ?.auto_capture_tags?.map((tag: string) => tag.toUpperCase()) ?? [];
-      document.body?.addEventListener('click', (event: MouseEvent) => {
-        const target = event.target as HTMLElement;
-        if (target && trackTags.includes(target.tagName)) {
-          const customProperties = getElementProperties(target);
-          eventBuilder.track(
-            `${config.defaultSystemEventPrefix} ${EventType.Click}${config.defaultSystemEventPrefix}${target.innerText}`,
-            customProperties,
-          );
-        }
-      });
-    }
-  }, [eventBuilder]);
+  }, [telegramWebAppData, adsUserId]);
 
   return (
     <TwaAnalyticsProviderContext.Provider value={eventBuilder}>

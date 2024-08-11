@@ -1,13 +1,17 @@
 import { Task } from '../types';
 
-const API_ENDPOINT =
-  'https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/ads-network/fetch';
-const ADS_USER_ID = '7c77f83b-6c77-4123-bdc3-d202d45a98b8';
 const EXPIRATION_TIME = 48; // 48 hours
 const QUANTITY = 5;
 
 export class TaskManager {
-  private storageKey = 'twa_analytics_tasks';
+  private storageKey = 'telemetree_tasks';
+  private adsUserId?: string;
+  private apiEndpoint: string;
+
+  constructor(adsUserId?: string, apiEndpoint?: string) {
+    this.adsUserId = adsUserId;
+    this.apiEndpoint = apiEndpoint || 'https://api.telemetree.io';
+  }
 
   async initializeTasks(): Promise<void> {
     const storedTasks = this.getStoredTasks();
@@ -39,15 +43,24 @@ export class TaskManager {
   }
 
   private async fetchAndStoreTasks(): Promise<void> {
+    if (!this.adsUserId) {
+      console.log('adsUserId not set, skipping task fetch');
+      return;
+    }
+
     try {
-      const response = await fetch(
-        `${API_ENDPOINT}?expiration_time=${EXPIRATION_TIME}&quantity=${QUANTITY}`,
-        {
-          headers: {
-            'ads-user-id': ADS_USER_ID,
-          },
-        },
-      );
+      if (!this.apiEndpoint) {
+        throw new Error('API endpoint not set');
+      }
+      const url = new URL(`${this.apiEndpoint}/public-api/ads-network/fetch`);
+      url.searchParams.append('expiration_time_in_hours', '48');
+      url.searchParams.append('quantity', QUANTITY.toString());
+
+      const headers: HeadersInit = {
+        'ads-user-id': this.adsUserId,
+      };
+
+      const response = await fetch(url.toString(), { headers });
 
       if (!response.ok) {
         throw new Error('Failed to fetch tasks');
@@ -55,15 +68,14 @@ export class TaskManager {
 
       const data = await response.json();
 
-      if (!data.tasks || !Array.isArray(data.tasks)) {
-        console.error('API did not return a valid tasks array:', data);
+      if (!data.tasks || !Array.isArray(data.tasks) || !data.expiration) {
+        console.error('API did not return valid data:', data);
         return;
       }
 
-      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
       const newTasks: Task[] = data.tasks.map((task: any) => ({
         ...task,
-        expirationTime: currentTime + EXPIRATION_TIME * 3600, // Add expiration time in seconds
+        expirationTime: new Date(data.expiration).getTime() / 1000, // Convert to Unix timestamp
       }));
 
       const existingTasks = this.getStoredTasks();
@@ -74,4 +86,3 @@ export class TaskManager {
     }
   }
 }
-
