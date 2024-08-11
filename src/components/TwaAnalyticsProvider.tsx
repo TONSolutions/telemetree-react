@@ -12,7 +12,7 @@ import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
 import { getConfig } from '../config';
-import { TaskManager } from '../utils/taskManager';
+import { TaskManager, TaskManagerError } from '../modules/task-manager';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -92,99 +92,32 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   }, []);
 
   useEffect(() => {
+    let taskManager: TaskManager | null = null;
     if (tasksHost) {
-      const taskManager = new TaskManager(adsUserId, tasksHost);
+      taskManager = new TaskManager(
+        adsUserId,
+        tasksHost,
+        telegramWebAppData,
+        (error: TaskManagerError) => {
+          console.error(
+            'TaskManager error:',
+            error.message,
+            'Code:',
+            error.code,
+          );
+          // You can add additional error handling logic here
+        },
+      );
       taskManager.initializeTasks();
     }
-  }, [adsUserId, tasksHost]);
 
-  useEffect(() => {
-    // ... (existing event handlers)
-
-    // Event handler for 'display_task'
-    const handleDisplayTask = (event: CustomEvent) => {
-      const taskId = event.detail?.task_id;
-      const userId = telegramWebAppData.user?.id;
-      if (taskId && userId) {
-        const url = new URL(
-          'https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/ads-network/display',
-        );
-        url.searchParams.append('task_id', taskId);
-        url.searchParams.append('user_id', userId.toString());
-
-        const headers: HeadersInit = {};
-        if (adsUserId) {
-          headers['ads-user-id'] = adsUserId;
-        }
-
-        fetch(url.toString(), {
-          method: 'GET',
-          headers,
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            // Handle successful response if needed
-          })
-          .catch((error) => {
-            console.error(
-              'Error displaying task:',
-              error instanceof Error ? error.message : 'Unknown error',
-            );
-          });
-      }
-    };
-
-    // Event handler for 'fetch_tasks'
-    const handleFetchTasks = (event: CustomEvent) => {
-      const taskId = event.detail?.task_id;
-      const userId = telegramWebAppData.user?.id;
-      if (taskId && userId) {
-        const headers: HeadersInit = {
-          'Content-Type': 'application/json',
-        };
-        if (adsUserId) {
-          headers['ads-user-id'] = adsUserId;
-        }
-
-        fetch(
-          'https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/ads-network/verify',
-          {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ task_id: taskId, user_id: userId }),
-          },
-        )
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            // Handle successful response if needed
-          })
-          .catch((error) => {
-            console.error(
-              'Error verifying task:',
-              error instanceof Error ? error.message : 'Unknown error',
-            );
-          });
-      }
-    };
-
-    window.addEventListener('display_task', handleDisplayTask as EventListener);
-    window.addEventListener('fetch_tasks', handleFetchTasks as EventListener);
-
+    // Cleanup function
     return () => {
-      window.removeEventListener(
-        'display_task',
-        handleDisplayTask as EventListener,
-      );
-      window.removeEventListener(
-        'fetch_tasks',
-        handleFetchTasks as EventListener,
-      );
+      if (taskManager) {
+        taskManager.cleanup();
+      }
     };
-  }, [telegramWebAppData, adsUserId]);
+  }, [adsUserId, tasksHost, telegramWebAppData]);
 
   return (
     <TwaAnalyticsProviderContext.Provider value={eventBuilder}>

@@ -1,5 +1,6 @@
 import { Logger, LogLevel } from './utils/logger';
 import { getConfig, setConfig, type TelemetreeConfig } from './config';
+import { TaskManager } from './modules';
 
 Logger.setLevel(
   import.meta.env.MODE === 'production' ? LogLevel.INFO : LogLevel.DEBUG,
@@ -16,3 +17,4 @@ export {
   type EventDetails,
   type EventUserDetails,
 } from './types/event';
+export { TaskManager } from './modules';
