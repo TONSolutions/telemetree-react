@@ -70,6 +70,10 @@ export class TaskManager {
     }
   }
 
+  public async getTasks(): Promise<Task[]> {
+    return this.getStoredTasks();
+  }
+
   private setupEventListeners(): void {
     window.addEventListener('display_task', this.boundHandleDisplayTask);
     window.addEventListener('fetch_tasks', this.boundHandleFetchTasks);
@@ -98,14 +102,7 @@ export class TaskManager {
     const taskId = taskEvent.detail?.taskId;
     const userId = this.getUserId();
     if (taskId && userId) {
-      const isVerified = await this.verifyTask(taskId, userId);
-      if (isVerified) {
-        // Perform actions for a successfully verified task
-        // For example, update UI or trigger a reward
-      } else {
-        // Handle failed verification
-        // For example, show an error message to the user
-      }
+      await this.verifyTask(taskId, userId);
     }
   };
 
@@ -137,26 +134,20 @@ export class TaskManager {
     }
   }
 
-  private async verifyTask(taskId: string, userId: string): Promise<boolean> {
-    const url = `${this.tasksHost}/public-api/ads-network/verify`;
-    const body = JSON.stringify({ task_id: taskId, user_id: userId });
+  private async verifyTask(taskId: string, userId: string): Promise<void> {
+    const url = new URL(`${this.tasksHost}/public-api/ads-network/verify`);
+    url.searchParams.append('task_id', taskId);
+    url.searchParams.append('user_id', userId);
 
     try {
-      const response = await this.sendRequest(url, 'POST', body);
+      const response = await this.sendRequest(url.toString(), 'GET');
       if (!response.ok) {
         throw new TaskManagerError(
           `HTTP error! status: ${response.status}`,
           'VERIFY_TASK_ERROR',
         );
       }
-      const data = await response.json();
-      if (data.verified === true) {
-        Logger.info('Task verified successfully', { taskId, userId });
-        return true;
-      } else {
-        Logger.info('Task verification failed', { taskId, userId });
-        return false;
-      }
+      Logger.info('Task verified successfully', { taskId, userId });
     } catch (error) {
       const taskError =
         error instanceof TaskManagerError
@@ -164,7 +155,6 @@ export class TaskManager {
           : new TaskManagerError('Error verifying task', 'VERIFY_TASK_ERROR');
       handleError(taskError.message, { taskId, userId });
       this.onError?.(taskError);
-      return false;
     }
   }
 
@@ -291,3 +281,4 @@ export class TaskManager {
     }
   }
 }
+

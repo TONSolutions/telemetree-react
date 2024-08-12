@@ -19,6 +19,7 @@ export class EventBuilder implements IEventBuilder {
   private config: TwaAnalyticsConfig | null = null;
   private sessionIdentifier: string = getCurrentUTCTimestampMilliseconds();
   private readonly pushHandler: EventPushHandler = new EventPushHandler(this);
+  private isReady: boolean = false;
 
   constructor(
     private readonly projectId: string,
@@ -27,15 +28,16 @@ export class EventBuilder implements IEventBuilder {
     private readonly data: TelegramWebAppData,
     private readonly adsUserId?: string,
   ) {
-    this.init();
+    this.initAsync();
   }
 
-  private async init(): Promise<void> {
+  private async initAsync(): Promise<void> {
     try {
       await this.loadConfig();
       this.setupTransport();
       await this.pushHandler.flush();
       this.setupAutoCaptureListener();
+      this.isReady = true;
     } catch (error) {
       Logger.error('Initialization error:', {
         message: error instanceof Error ? error.message : String(error),
@@ -152,7 +154,14 @@ export class EventBuilder implements IEventBuilder {
     }
 
     const event = this.createEventObject(eventName, eventProperties);
-    return this.pushHandler.push(event);
+
+    if (!this.isReady) {
+      // Queue the event if not ready
+      this.pushHandler.push(event);
+    } else {
+      // Process immediately if ready
+      return this.pushHandler.push(event);
+    }
   }
 
   private createEventObject(

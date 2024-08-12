@@ -1,17 +1,10 @@
-export function sanitize(input: string): string {
-  // Remove any HTML tags
-  let sanitized = input.replace(/<[^>]*>/g, '');
+import DOMPurify from 'isomorphic-dompurify';
 
-  // Encode special characters
-  sanitized = sanitized
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+export const sanitize = (input: string): string => {
+  let sanitized = DOMPurify.sanitize(input);
 
   // Trim whitespace
   sanitized = sanitized.trim();
 
   return sanitized;
-}
+};

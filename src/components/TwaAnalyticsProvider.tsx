@@ -64,6 +64,16 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   const telegramWebAppData = loadTelegramWebAppData();
   const [tasksHost, setTasksHost] = useState<string | null>(null);
 
+  const eventBuilder = useMemo(() => {
+    return new EventBuilder(
+      options.projectId,
+      options.apiKey,
+      options.appName,
+      telegramWebAppData,
+      adsUserId,
+    );
+  }, []);
+
   useEffect(() => {
     const fetchConfig = async () => {
       try {
@@ -76,22 +86,12 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
         const data = await response.json();
         setTasksHost(data.tasks_host || 'https://api.telemetree.io');
       } catch (error) {
-        handleError('Error fetching config:', error);
+        console.error('Error fetching config:', error);
         setTasksHost('https://api.telemetree.io'); // Set default if fetch fails
       }
     };
     fetchConfig();
   }, [options.projectId]);
-
-  const eventBuilder = useMemo(() => {
-    return new EventBuilder(
-      options.projectId,
-      options.apiKey,
-      options.appName,
-      telegramWebAppData,
-      adsUserId,
-    );
-  }, []);
 
   useEffect(() => {
     let taskManager: TaskManager | null = null;
@@ -110,7 +110,6 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       taskManager.initializeTasks();
     }
 
-    // Cleanup function
     return () => {
       if (taskManager) {
         taskManager.cleanup();

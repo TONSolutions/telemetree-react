@@ -1,6 +1,6 @@
 {
   "name": "@tonsolutions/telemetree-react-pts",
-  "version": "1.0.8",
+  "version": "1.0.11",
   "description": "Telemetree library for React.js",
   "main": "./lib/index.сjs",
   "module": "./lib/index.mjs",
@@ -64,6 +64,7 @@
   "dependencies": {
     "@testing-library/react": "^16.0.0",
     "crypto-js": "^4.2.0",
+    "isomorphic-dompurify": "^2.14.0",
     "jsencrypt": "^3.3.2",
     "rollup-plugin-terser": "^7.0.2"
   },
