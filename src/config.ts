@@ -1,4 +1,4 @@
-import { CONFIG_API_GATEWAY, API_GATEWAY_REQUEST_TIMEOUT } from './constants';
+import { configApiGateway, apiGatewayRequestTimeout } from './constants';
 
 export interface TelemetreeConfig {
   apiGateway: string;
@@ -8,8 +8,8 @@ export interface TelemetreeConfig {
 }
 
 export const defaultConfig: TelemetreeConfig = {
-  apiGateway: CONFIG_API_GATEWAY,
-  requestTimeout: API_GATEWAY_REQUEST_TIMEOUT,
+  apiGateway: configApiGateway,
+  requestTimeout: apiGatewayRequestTimeout,
   defaultSystemEventPrefix: '[TS]',
   defaultSystemEventDataSeparator: ' | ',
 };

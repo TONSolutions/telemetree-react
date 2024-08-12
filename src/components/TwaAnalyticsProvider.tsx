@@ -31,10 +31,10 @@ export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
 
 export type TwaAnalyticsConfig = {
   host: string;
-  auto_capture: boolean;
-  auto_capture_tags: string[];
-  auto_capture_classes: string[];
-  public_key: string;
+  autoCapture: boolean;
+  autoCaptureTags: string[];
+  autoCaptureClasses: string[];
+  publicKey: string;
 };
 
 function getElementProperties(element: HTMLElement): Record<string, string> {

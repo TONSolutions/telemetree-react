@@ -80,8 +80,8 @@ export class EventBuilder implements IEventBuilder {
   }
 
   private setupAutoCaptureListener(): void {
-    if (this.config?.auto_capture) {
-      const trackTags = this.config.auto_capture_tags.map((tag: string) =>
+    if (this.config?.autoCapture) {
+      const trackTags = this.config.autoCaptureTags.map((tag: string) =>
         tag.toUpperCase(),
       );
       document.body?.addEventListener(
@@ -216,7 +216,7 @@ export class EventBuilder implements IEventBuilder {
 
     try {
       const { encryptedKey, encryptedIV, encryptedBody } = encryptMessage(
-        this.config.public_key,
+        this.config.publicKey,
         JSON.stringify(event),
       );
 

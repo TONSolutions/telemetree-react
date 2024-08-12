@@ -1,8 +1,7 @@
-export const CONFIG_API_GATEWAY =
-  'https://config.ton.solutions/v1/client/config';
-export const API_GATEWAY_REQUEST_TIMEOUT = 10000;
+export const configApiGateway = 'https://config.ton.solutions/v1/client/config';
+export const apiGatewayRequestTimeout = 10000;
 
-export const BASE_OPTIONS = {
+export const baseOptions = {
   method: 'GET',
   isCorsEnabled: true,
 };
