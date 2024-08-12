@@ -9,10 +9,9 @@ import {
 } from 'react';
 import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
-import { TonConnectStorageData } from '../models/tonconnect-storage-data';
-import { EventType } from '../enum/event-type.enum';
-import { getConfig } from '../config';
 import { TaskManager, TaskManagerError } from '../modules/task-manager';
+import { Logger } from '../utils/logger';
+import { handleError } from '../utils/error-handler';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -28,8 +27,6 @@ export type TwaAnalyticsProviderProps = {
 export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
   null,
 );
-
-const WalletConnectedKey = 'walletConnected';
 
 const TonConnectLocalStorageKey = 'ton-connect-storage_bridge-connection';
 const TonConnectProviderNameLocalStorageKey = 'ton-connect-ui_preferred-wallet';
@@ -74,7 +71,7 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
         const data = await response.json();
         setTasksHost(data.tasks_host || 'https://api.telemetree.io');
       } catch (error) {
-        console.error('Error fetching config:', error);
+        handleError('Error fetching config:', error);
         setTasksHost('https://api.telemetree.io'); // Set default if fetch fails
       }
     };
@@ -99,13 +96,10 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
         tasksHost,
         telegramWebAppData,
         (error: TaskManagerError) => {
-          console.error(
-            'TaskManager error:',
-            error.message,
-            'Code:',
-            error.code,
-          );
-          // You can add additional error handling logic here
+          Logger.error('TaskManager error:', {
+            message: error.message,
+            code: error.code,
+          });
         },
       );
       taskManager.initializeTasks();

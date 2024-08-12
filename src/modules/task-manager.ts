@@ -1,8 +1,9 @@
 import { Logger } from '../utils/logger';
 import { TelegramWebAppData } from '../models';
 import { Task } from '../types';
+import { handleError } from '../utils/error-handler';
 
-type TaskEvent = CustomEvent<{ task_id: string }>;
+type TaskEvent = CustomEvent<{ taskId: string }>;
 
 const EXPIRATION_TIME = 48; // 48 hours
 const QUANTITY = 5;
@@ -61,7 +62,7 @@ export class TaskManager {
 
   private handleDisplayTask = (event: Event): void => {
     const taskEvent = event as TaskEvent;
-    const taskId = taskEvent.detail?.task_id;
+    const taskId = taskEvent.detail?.taskId;
     const userId = this.getUserId();
     if (taskId && userId) {
       this.displayTask(taskId, userId);
@@ -70,7 +71,7 @@ export class TaskManager {
 
   private handleFetchTasks = async (event: Event): Promise<void> => {
     const taskEvent = event as TaskEvent;
-    const taskId = taskEvent.detail?.task_id;
+    const taskId = taskEvent.detail?.taskId;
     const userId = this.getUserId();
     if (taskId && userId) {
       const isVerified = await this.verifyTask(taskId, userId);
@@ -107,7 +108,7 @@ export class TaskManager {
         error instanceof TaskManagerError
           ? error
           : new TaskManagerError('Error displaying task', 'DISPLAY_TASK_ERROR');
-      Logger.error(taskError.message, { taskId, userId });
+      handleError(taskError.message, { taskId, userId });
       this.onError?.(taskError);
     }
   }
@@ -137,7 +138,7 @@ export class TaskManager {
         error instanceof TaskManagerError
           ? error
           : new TaskManagerError('Error verifying task', 'VERIFY_TASK_ERROR');
-      Logger.error(taskError.message, { taskId, userId });
+      handleError(taskError.message, { taskId, userId });
       this.onError?.(taskError);
       return false;
     }

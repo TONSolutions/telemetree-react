@@ -1,6 +1,7 @@
 {
   "name": "@tonsolutions/telemetree-react-pts",
   "version": "1.0.8",
+  "description": "Telemetree library for React.js",
   "main": "./lib/index.сjs",
   "module": "./lib/index.mjs",
   "types": "./lib/index.d.ts",
@@ -37,7 +38,7 @@
   "files": [
     "lib"
   ],
-  "author": "strd0x",
+  "author": "Telemetree",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
@@ -76,6 +77,5 @@
   "bugs": {
     "url": "https://github.com/TONSolutions/telemetree-react/issues"
   },
-  "homepage": "https://github.com/TONSolutions/telemetree-react#readme",
-  "description": "TON Solutions Telemetree library for React.js"
+  "homepage": "https://github.com/TONSolutions/telemetree-react#readme"
 }
