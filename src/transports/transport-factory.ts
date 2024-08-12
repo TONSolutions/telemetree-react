@@ -7,10 +7,15 @@ export class TransportFactory {
   };
 
   static getTransport(name: string, options: TransportOptions): Transport {
-    if (!this.transports[name]) {
-      return new HTTPTransport(options);
-    }
+    try {
+      if (!this.transports[name]) {
+        return new HTTPTransport(options);
+      }
 
-    return new this.transports[name](options);
+      return new this.transports[name](options);
+    } catch (error) {
+      console.error(`Failed to instantiate transport: ${error}`);
+      throw new Error(`Unable to create transport: ${name}`);
+    }
   }
 }

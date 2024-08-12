@@ -37,7 +37,9 @@ export class EventBuilder implements IEventBuilder {
       await this.pushHandler.flush();
       this.setupAutoCaptureListener();
     } catch (error) {
-      console.error('Initialization error:', error);
+      Logger.error('Initialization error:', {
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -145,6 +147,10 @@ export class EventBuilder implements IEventBuilder {
       return;
     }
 
+    if (!eventProperties || typeof eventProperties !== 'object') {
+      throw new Error('Event properties are invalid.');
+    }
+
     const event = this.createEventObject(eventName, eventProperties);
     return this.pushHandler.push(event);
   }
@@ -236,5 +242,9 @@ export class EventBuilder implements IEventBuilder {
         });
       }
     }
+  }
+
+  public hasRequiredConfig(): boolean {
+    return !!this.config && !!this.transport;
   }
 }

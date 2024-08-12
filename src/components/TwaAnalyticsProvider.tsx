@@ -12,6 +12,7 @@ import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
 import { TaskManager, TaskManagerError } from '../modules/task-manager';
 import { Logger } from '../utils/logger';
 import { handleError } from '../utils/error-handler';
+import { sanitize } from '../utils/sanitize';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -28,9 +29,6 @@ export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
   null,
 );
 
-const TonConnectLocalStorageKey = 'ton-connect-storage_bridge-connection';
-const TonConnectProviderNameLocalStorageKey = 'ton-connect-ui_preferred-wallet';
-
 export type TwaAnalyticsConfig = {
   host: string;
   auto_capture: boolean;
@@ -40,11 +38,18 @@ export type TwaAnalyticsConfig = {
 };
 
 function getElementProperties(element: HTMLElement): Record<string, string> {
-  return {
-    tagName: element.tagName,
-    id: element.id,
-    className: element.className,
-  };
+  try {
+    return {
+      tagName: element.tagName,
+      id: sanitize(element.id),
+      className: sanitize(element.className),
+    };
+  } catch (error) {
+    Logger.error('Error accessing element properties:', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return {};
+  }
 }
 
 const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({

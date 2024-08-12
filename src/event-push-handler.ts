@@ -5,7 +5,11 @@ export class EventPushHandler {
   protected eventsQueue: BaseEvent[] = [];
   protected isProcessing: boolean = false;
 
-  constructor(protected readonly client: EventBuilder) {}
+  constructor(
+    protected readonly client: EventBuilder & {
+      hasRequiredConfig: () => boolean;
+    },
+  ) {}
 
   public push(event: BaseEvent): void {
     this.eventsQueue.push(event);
@@ -13,7 +17,7 @@ export class EventPushHandler {
   }
 
   public processQueue(): void {
-    if (this.isProcessing === true || this.client.getConfig() === null) {
+    if (this.isProcessing === true || !this.client.hasRequiredConfig()) {
       return;
     }
 
@@ -32,6 +36,16 @@ export class EventPushHandler {
 
     if (events.length === 0) {
       return;
+    }
+
+    try {
+      const executeEvents = events.map((event) =>
+        this.client.processEvent.bind(this.client)(event),
+      );
+      await Promise.all(executeEvents);
+    } catch (error) {
+      console.error(`Error during event processing: ${error}`);
+      // Additional error handling logic can be added here
     }
 
     const executeEvents = events.map((event) =>

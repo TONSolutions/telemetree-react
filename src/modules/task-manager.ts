@@ -13,12 +13,20 @@ export class TaskManagerError extends Error {
     message: string,
     public readonly code: string,
   ) {
+    if (!code.trim()) {
+      throw new Error('Code must be a non-empty string');
+    }
     super(message);
     this.name = 'TaskManagerError';
+    Logger.error(`TaskManagerError: ${message} - Code: ${code}`);
   }
 }
 
 export class TaskManager {
+  private dbName = 'TelemetreeTasksDB';
+  private storeName = 'tasks';
+  private db: IDBDatabase | null = null;
+
   private boundHandleDisplayTask: EventListener;
   private boundHandleFetchTasks: EventListener;
   private storageKey = 'telemetree_tasks';
@@ -38,13 +46,25 @@ export class TaskManager {
   }
 
   public async initializeTasks(): Promise<void> {
+    await this.openDatabase();
     this.setupEventListeners();
-    const storedTasks = this.getStoredTasks();
+    Logger.info('TaskManager initialized and event listeners set up.');
+
+    const storedTasks = await this.getStoredTasks();
+    Logger.info(`Found ${storedTasks.length} tasks in storage.`);
+
     if (storedTasks.length < QUANTITY) {
+      Logger.info('Not enough tasks found, fetching more tasks.');
       await this.fetchAndStoreTasks();
     } else {
-      this.removeExpiredTasks();
-      if (this.getStoredTasks().length < QUANTITY) {
+      await this.removeExpiredTasks();
+      Logger.info('Expired tasks removed.');
+
+      const remainingTasks = await this.getStoredTasks();
+      if (remainingTasks.length < QUANTITY) {
+        Logger.info(
+          'Not enough tasks left after removing expired tasks, fetching more.',
+        );
         await this.fetchAndStoreTasks();
       }
     }
@@ -58,6 +78,10 @@ export class TaskManager {
   public cleanup(): void {
     window.removeEventListener('display_task', this.boundHandleDisplayTask);
     window.removeEventListener('fetch_tasks', this.boundHandleFetchTasks);
+    if (this.db) {
+      this.db.close();
+      this.db = null;
+    }
   }
 
   private handleDisplayTask = (event: Event): void => {
@@ -163,21 +187,62 @@ export class TaskManager {
     });
   }
 
-  private getStoredTasks(): Task[] {
-    const tasksJson = localStorage.getItem(this.storageKey);
-    return tasksJson ? JSON.parse(tasksJson) : [];
+  private async openDatabase(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, 1);
+
+      request.onerror = () => reject(new Error('Failed to open database'));
+
+      request.onsuccess = (event) => {
+        this.db = (event.target as IDBOpenDBRequest).result;
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        db.createObjectStore(this.storeName, { keyPath: 'id' });
+      };
+    });
   }
 
-  private setStoredTasks(tasks: Task[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(tasks));
+  private async getStoredTasks(): Promise<Task[]> {
+    if (!this.db) await this.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, 'readonly');
+      const store = transaction.objectStore(this.storeName);
+      const request = store.getAll();
+
+      request.onerror = () => reject(new Error('Failed to get tasks'));
+      request.onsuccess = () => resolve(request.result);
+    });
   }
 
-  private removeExpiredTasks(): void {
+  private async setStoredTasks(tasks: Task[]): Promise<void> {
+    if (!this.db) await this.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(this.storeName, 'readwrite');
+      const store = transaction.objectStore(this.storeName);
+
+      // Clear existing tasks
+      store.clear();
+
+      // Add new tasks
+      tasks.forEach((task) => store.add(task));
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(new Error('Failed to store tasks'));
+    });
+  }
+
+  private async removeExpiredTasks(): Promise<void> {
     const currentTime = Math.floor(Date.now() / 1000);
-    const tasks = this.getStoredTasks().filter(
+    const tasks = await this.getStoredTasks();
+    const validTasks = tasks.filter(
       (task) => task.expirationTime > currentTime,
     );
-    this.setStoredTasks(tasks);
+    await this.setStoredTasks(validTasks);
   }
 
   private async fetchAndStoreTasks(): Promise<void> {
@@ -211,9 +276,9 @@ export class TaskManager {
         expirationTime: new Date(data.expiration).getTime() / 1000, // Convert to Unix timestamp
       }));
 
-      const existingTasks = this.getStoredTasks();
+      const existingTasks = await this.getStoredTasks();
       const updatedTasks = [...existingTasks, ...newTasks].slice(0, QUANTITY);
-      this.setStoredTasks(updatedTasks);
+      await this.setStoredTasks(updatedTasks);
     } catch (error) {
       if (error instanceof Error) {
         Logger.error('Error fetching tasks:', { message: error.message });
