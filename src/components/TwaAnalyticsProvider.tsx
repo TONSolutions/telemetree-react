@@ -13,6 +13,7 @@ import { TaskManager, TaskManagerError } from '../modules/task-manager';
 import { Logger } from '../utils/logger';
 import { handleError } from '../utils/error-handler';
 import { sanitize } from '../utils/sanitize';
+import {configApiGateway} from "../constants";
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
@@ -78,7 +79,7 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
     const fetchConfig = async () => {
       try {
         const response = await fetch(
-          `https://analytics-backend-python-co9bzgwn9.vercel.app/public-api/config?project=${options.projectId}`,
+          `${configApiGateway}/config?project=${options.projectId}`,
         );
         if (!response.ok) {
           throw new Error('Failed to fetch config');
