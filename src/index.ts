@@ -6,7 +6,7 @@ Logger.setLevel(
   import.meta.env.MODE === 'production' ? LogLevel.INFO : LogLevel.DEBUG,
 );
 
-export { useTWAEvent } from './hooks';
+export { useTWAEvent, useTMATasks } from './hooks';
 export {
   type TwaAnalyticsProviderProps,
   type TwaAnalyticsProviderOptions,

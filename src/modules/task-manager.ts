@@ -30,10 +30,12 @@ export class TaskManager {
   private boundHandleDisplayTask: EventListener;
   private boundHandleFetchTasks: EventListener;
   private storageKey = 'telemetree_tasks';
+  private isInitialized = false;
 
   constructor(
     private adsUserId: string | undefined,
     private tasksHost: string,
+    private token: string,
     private telegramWebAppData: TelegramWebAppData,
     private onError?: (error: TaskManagerError) => void,
   ) {
@@ -66,8 +68,14 @@ export class TaskManager {
           'Not enough tasks left after removing expired tasks, fetching more.',
         );
         await this.fetchAndStoreTasks();
+      } else {
+        this.isInitialized = true;
       }
     }
+  }
+
+  public async getInitialized(): Promise<boolean> {
+    return this.isInitialized;
   }
 
   public async getTasks(): Promise<Task[]> {
@@ -110,8 +118,14 @@ export class TaskManager {
     return this.telegramWebAppData.user?.id?.toString();
   }
 
+  public async displayedTaskShown(taskId: string): Promise<void> {
+    const userId = this.getUserId();
+    if (!userId) return;
+    await this.displayTask(taskId, userId);
+  }
+
   private async displayTask(taskId: string, userId: string): Promise<void> {
-    const url = new URL(`${this.tasksHost}/public-api/ads-network/display`);
+    const url = new URL(`${this.tasksHost}/display`);
     url.searchParams.append('task_id', taskId);
     url.searchParams.append('user_id', userId);
 
@@ -134,8 +148,14 @@ export class TaskManager {
     }
   }
 
+  public async verifyingTask(taskId: string): Promise<void> {
+    const userId = this.getUserId();
+    if (!userId) return;
+    await this.verifyTask(taskId, userId);
+  }
+
   private async verifyTask(taskId: string, userId: string): Promise<void> {
-    const url = new URL(`${this.tasksHost}/public-api/ads-network/verify`);
+    const url = new URL(`${this.tasksHost}/verify`);
     url.searchParams.append('task_id', taskId);
     url.searchParams.append('user_id', userId);
 
@@ -168,6 +188,10 @@ export class TaskManager {
     };
     if (this.adsUserId) {
       headers['ads-user-id'] = this.adsUserId;
+    }
+
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
     }
 
     return fetch(url, {
@@ -242,16 +266,12 @@ export class TaskManager {
     }
 
     try {
-      const url = new URL(`${this.tasksHost}/public-api/ads-network/fetch`);
+      const url = new URL(`${this.tasksHost}/fetch`);
       url.searchParams.append(
         'expiration_time_in_hours',
         EXPIRATION_TIME.toString(),
       );
       url.searchParams.append('quantity', QUANTITY.toString());
-
-      const headers: HeadersInit = {
-        'ads-user-id': this.adsUserId,
-      };
 
       const response = await this.sendRequest(url.toString(), 'GET');
       const data = await response.json();
@@ -268,7 +288,10 @@ export class TaskManager {
 
       const existingTasks = await this.getStoredTasks();
       const updatedTasks = [...existingTasks, ...newTasks].slice(0, QUANTITY);
-      await this.setStoredTasks(updatedTasks);
+      await this.setStoredTasks(updatedTasks)
+        .then(() => {
+          this.isInitialized = true;
+        });
     } catch (error) {
       if (error instanceof Error) {
         Logger.error('Error fetching tasks:', { message: error.message });

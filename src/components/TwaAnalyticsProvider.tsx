@@ -26,7 +26,13 @@ export type TwaAnalyticsProviderProps = {
   children: ReactNode;
 } & TwaAnalyticsProviderOptions;
 
-export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
+export type TwaAnalyticsProviderContextType = {
+  eventBuilder: EventBuilder | null;
+  taskManager: TaskManager | null;
+  isInitialized: boolean;
+};
+
+export const TwaAnalyticsProviderContext = createContext<TwaAnalyticsProviderContextType | null>(
   null,
 );
 
@@ -64,6 +70,8 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
 
   const telegramWebAppData = loadTelegramWebAppData();
   const [tasksHost, setTasksHost] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const eventBuilder = useMemo(() => {
     return new EventBuilder(
@@ -75,17 +83,38 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
     );
   }, []);
 
+  const newTaskManager = useMemo(() => {
+    let taskManager: TaskManager | null = null;
+    if (tasksHost && token) {
+      taskManager = new TaskManager(
+        adsUserId,
+        tasksHost,
+        token,
+        telegramWebAppData,
+        (error: TaskManagerError) => {
+          Logger.error('TaskManager error:', {
+            message: error.message,
+            code: error.code,
+          });
+        },
+      );
+    }
+
+    return taskManager;
+  }, [adsUserId, tasksHost, token, telegramWebAppData]);
+
   useEffect(() => {
     const fetchConfig = async () => {
       try {
         const response = await fetch(
-          `${configApiGateway}/config?project=${options.projectId}`,
+          `${configApiGateway}?project=${options.projectId}`,
         );
         if (!response.ok) {
           throw new Error('Failed to fetch config');
         }
         const data = await response.json();
         setTasksHost(data.tasks_host || 'https://api.telemetree.io');
+        setToken(data.token || '');
       } catch (error) {
         console.error('Error fetching config:', error);
         setTasksHost('https://api.telemetree.io'); // Set default if fetch fails
@@ -96,10 +125,11 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
 
   useEffect(() => {
     let taskManager: TaskManager | null = null;
-    if (tasksHost) {
+    if (tasksHost && token) {
       taskManager = new TaskManager(
         adsUserId,
         tasksHost,
+        token,
         telegramWebAppData,
         (error: TaskManagerError) => {
           Logger.error('TaskManager error:', {
@@ -108,7 +138,10 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
           });
         },
       );
-      taskManager.initializeTasks();
+      taskManager.initializeTasks()
+        .then(r => {
+          setIsInitialized(true);
+        });
     }
 
     return () => {
@@ -116,10 +149,16 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
         taskManager.cleanup();
       }
     };
-  }, [adsUserId, tasksHost, telegramWebAppData]);
+  }, [adsUserId, tasksHost, token, telegramWebAppData]);
+
+  const contextValue = useMemo(() => ({
+    eventBuilder,
+    taskManager: newTaskManager,
+    isInitialized,
+  }), [eventBuilder, newTaskManager, isInitialized]);
 
   return (
-    <TwaAnalyticsProviderContext.Provider value={eventBuilder}>
+    <TwaAnalyticsProviderContext.Provider value={contextValue}>
       {children}
     </TwaAnalyticsProviderContext.Provider>
   );
