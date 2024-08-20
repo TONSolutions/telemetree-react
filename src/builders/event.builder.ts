@@ -216,9 +216,6 @@ export class EventBuilder implements IEventBuilder {
     }
 
     try {
-      Logger.info('Info key: ', this.config);
-      console.log('event inf: ', JSON.stringify(event));
-
       const { encryptedKey, encryptedIV, encryptedBody } = encryptMessage(
         this.config.public_key,
         JSON.stringify(event),
