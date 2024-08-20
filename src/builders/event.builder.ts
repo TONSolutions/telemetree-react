@@ -16,7 +16,7 @@ import { Logger } from '../utils/logger';
 
 export class EventBuilder implements IEventBuilder {
   private transport: Transport | null = null;
-  private config: TwaAnalyticsConfig | null = null;
+  //private config: TwaAnalyticsConfig | null = null;
   private sessionIdentifier: string = getCurrentUTCTimestampMilliseconds();
   private readonly pushHandler: EventPushHandler = new EventPushHandler(this);
   private isReady: boolean = false;
@@ -26,6 +26,7 @@ export class EventBuilder implements IEventBuilder {
     private readonly apiKey: string,
     private readonly appName: string,
     private readonly data: TelegramWebAppData,
+    private config: TwaAnalyticsConfig,
     private readonly adsUserId?: string,
   ) {
     this.initAsync();
@@ -33,10 +34,10 @@ export class EventBuilder implements IEventBuilder {
 
   private async initAsync(): Promise<void> {
     try {
-      await this.loadConfig();
+      //await this.loadConfig();
       this.setupTransport();
       await this.pushHandler.flush();
-      this.setupAutoCaptureListener();
+      //this.setupAutoCaptureListener();
       this.isReady = true;
     } catch (error) {
       Logger.error('Initialization error:', {
@@ -80,7 +81,7 @@ export class EventBuilder implements IEventBuilder {
   }
 
   private setupAutoCaptureListener(): void {
-    if (this.config?.autoCapture) {
+    if (this.config?.auto_capture) {
       const trackTags = this.config.autoCaptureTags.map((tag: string) =>
         tag.toUpperCase(),
       );
@@ -215,13 +216,16 @@ export class EventBuilder implements IEventBuilder {
     }
 
     try {
+      Logger.info('Info key: ', this.config);
+      console.log('event inf: ', JSON.stringify(event));
+
       const { encryptedKey, encryptedIV, encryptedBody } = encryptMessage(
-        this.config.publicKey,
+        this.config.public_key,
         JSON.stringify(event),
       );
 
       const response = await this.transport.send(
-        this.config.host,
+        this.config.events_host,
         'POST',
         JSON.stringify({
           key: encryptedKey,

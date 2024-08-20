@@ -37,11 +37,13 @@ export const TwaAnalyticsProviderContext = createContext<TwaAnalyticsProviderCon
 );
 
 export type TwaAnalyticsConfig = {
-  host: string;
-  autoCapture: boolean;
+  tasks_host: string;
+  events_host: string;
+  auto_capture: boolean;
   autoCaptureTags: string[];
   autoCaptureClasses: string[];
-  publicKey: string;
+  public_key: string;
+  exp_time: number;
 };
 
 function getElementProperties(element: HTMLElement): Record<string, string> {
@@ -72,16 +74,39 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   const [tasksHost, setTasksHost] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [config, setConfig] = useState<TwaAnalyticsConfig | null>(null);
+
+  const fetchConfig = async () => {
+    try {
+      const response = await fetch(
+        `${configApiGateway}?project=${options.projectId}`,
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch config');
+      }
+      const data = await response.json();
+      setConfig(data);
+      setTasksHost(data.tasks_host || 'https://api.telemetree.io');
+      setToken(data.token || '');
+    } catch (error) {
+      console.error('Error fetching config:', error);
+      setTasksHost('https://api.telemetree.io'); // Set default if fetch fails
+    }
+  };
 
   const eventBuilder = useMemo(() => {
+    if (!config) {
+      return null;
+    }
     return new EventBuilder(
       options.projectId,
       options.apiKey,
       options.appName,
       telegramWebAppData,
+      config,
       adsUserId,
     );
-  }, []);
+  }, [config]);
 
   const newTaskManager = useMemo(() => {
     let taskManager: TaskManager | null = null;
@@ -104,22 +129,6 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   }, [adsUserId, tasksHost, token, telegramWebAppData]);
 
   useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const response = await fetch(
-          `${configApiGateway}?project=${options.projectId}`,
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch config');
-        }
-        const data = await response.json();
-        setTasksHost(data.tasks_host || 'https://api.telemetree.io');
-        setToken(data.token || '');
-      } catch (error) {
-        console.error('Error fetching config:', error);
-        setTasksHost('https://api.telemetree.io'); // Set default if fetch fails
-      }
-    };
     fetchConfig();
   }, [options.projectId]);
 

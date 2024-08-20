@@ -1,6 +1,6 @@
 {
   "name": "@tonsolutions/telemetree-react-pts",
-  "version": "1.0.12",
+  "version": "1.0.28",
   "description": "Telemetree library for React.js",
   "main": "./lib/index.cjs",
   "module": "./lib/index.mjs",

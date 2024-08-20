@@ -1,10 +1,6 @@
-import {baseOptions, configApiGateway} from "../constants";
 import {useContext, useEffect, useState} from "react";
 import {TwaAnalyticsProviderContext} from "../components";
 import {TaskManager} from "../modules";
-import {TaskManagerError} from "../modules/task-manager";
-import {Logger} from "../utils/logger";
-import {EventBuilder} from "../builders";
 
 export function useTMATasks() {
   const context = useContext(TwaAnalyticsProviderContext);
