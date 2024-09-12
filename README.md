@@ -9,6 +9,8 @@ To learn more about the SDK, here are some useful links:
 - Documentation: https://docs.telemetree.io/
 - Boilerplate: https://github.com/TONSolutions/react-twa-boilerplate
 
+![Alt](https://repobeats.axiom.co/api/embed/71dde1ce0ebd118019e03f5e9ba6a9d0898f3d70.svg "Repobeats analytics image")
+
 ## Installation
 
 Install it from [NPM](https://www.npmjs.com/package/@tonsolutions/telemetree-react):
