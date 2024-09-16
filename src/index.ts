@@ -11,6 +11,7 @@ export {
   type TwaAnalyticsProviderProps,
   type TwaAnalyticsProviderOptions,
   TwaAnalyticsProvider,
+  TwaListTasksButton,
 } from './components';
 export {
   type BaseEvent,

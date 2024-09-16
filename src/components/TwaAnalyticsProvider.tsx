@@ -80,7 +80,9 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
     try {
       const response = await fetch(
         `${configApiGateway}?project=${options.projectId}`,
-      );
+        {
+          mode: 'no-cors',
+        });
       if (!response.ok) {
         throw new Error('Failed to fetch config');
       }

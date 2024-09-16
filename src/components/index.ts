@@ -4,3 +4,5 @@ export {
   type TwaAnalyticsProviderProps,
   TwaAnalyticsProviderContext,
 } from './TwaAnalyticsProvider';
+
+export { default as TwaListTasksButton } from './TwaListTasksButton';
