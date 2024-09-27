@@ -58,7 +58,7 @@
     "vite-plugin-dts": "^3.6.3"
   },
   "peerDependencies": {
-    "react": ">=17.0.0"
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "dependencies": {
     "@testing-library/react": "^16.0.0",
