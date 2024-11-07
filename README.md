@@ -85,6 +85,6 @@ builder.track('transfer', {
 ```
 ## Other SDKs
 Telemetree SDKs are available for various frameworks and environments, making it easy to incorporate powerful analytics into any Telegram Mini App.
-- React SDK: TONSolutions/telemetree-react
-- Node.js SDK: TONSolutions/telemetree-node
-- .NET SDK: MANABbl4/Telemetree.Net (community-supported)
+- React SDK: https://github.com/TONSolutions/telemetree-react
+- Node.js SDK: https://github.com/TONSolutions/telemetree-node
+- .NET SDK: https://github.com/MANABbl4/Telemetree.Net (community-supported)
