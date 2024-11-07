@@ -33,12 +33,12 @@ Start capturing valuable insights with Telemetree and make data-driven decisions
 ## Resources
 Consider visiting our resources for more info about the state of the Telegram Mini Apps ecosystem and Telegram analytics.
 
-Website: telemetree.io
-Twitter: x.com/telemetree_hq
-Telegram channel: t.me/telemetree_en
-LinkedIn: www.linkedin.com/company/telemetree
-Medium: medium.com/@telemetree
-Documentation: docs.telemetree.io
+- [Website](https://www.telemetree.io/)
+- [Twitter](https://x.com/telemetree_HQ) 
+- [Telegram channel](https://t.me/telemetree_en)
+- [LinkedIn](https://linkedin.com/company/telemetree) 
+- [Medium](https://medium.com/@telemetree)
+- [Documentation](https://docs.telemetree.io/)
 
 # Installation
 
