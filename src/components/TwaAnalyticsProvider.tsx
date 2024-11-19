@@ -81,6 +81,96 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       eventBuilder.track(EventType.SettingsButtonPressed, {});
     });
 
+    webViewHandler?.onEvent('back_button_pressed', (event: string) => {
+      eventBuilder.track(EventType.BackButtonPressed, {});
+    });
+
+    webViewHandler?.onEvent('secondary_button_pressed', (event: string, data?: object) => {
+      eventBuilder.track(EventType.SecondaryButtonPressed, {
+        ...data,
+      });
+    });
+
+    webViewHandler?.onEvent('prepared_message_sent', (event: string) => {
+      eventBuilder.track(EventType.PreparedMessageSent, {});
+    });
+
+    webViewHandler?.onEvent('fullscreen_changed', (event: string, data?: object) => {
+      eventBuilder.track(EventType.FullScreenChanged, {
+        ...data,
+      });
+    });
+
+    webViewHandler?.onEvent('home_screen_added', (event: string) => {
+      eventBuilder.track(EventType.HomeScreenAdded, {});
+    });
+
+    webViewHandler?.onEvent('home_screen_checked', (event: string, data?: object) => {
+      eventBuilder.track(EventType.HomeScreenChecked, {
+        ...data,
+      });
+    });
+
+    webViewHandler?.onEvent('emoji_status_set', (event: string) => {
+      eventBuilder.track(EventType.EmojiStatusSet, {});
+    });
+
+    webViewHandler?.onEvent('location_checked', (event: string, data?: object) => {
+      eventBuilder.track(EventType.LocationChecked, {
+        ...data,
+      });
+    });
+
+    webViewHandler?.onEvent('location_requested', (event: string, data?: object) => {
+      eventBuilder.track(EventType.LocationRequested, {
+        ...data,
+      });
+    });
+
+    webViewHandler?.onEvent('accelerometer_started', (event: string) => {
+      eventBuilder.track(EventType.AccelerometerStarted, {});
+    });
+
+    webViewHandler?.onEvent('accelerometer_stopped', (event: string) => {
+      eventBuilder.track(EventType.AccelerometerStopped, {});
+    });
+
+    webViewHandler?.onEvent('accelerometer_changed', (event: string) => {
+      eventBuilder.track(EventType.AccelerometerChanged, {});
+    });
+
+    webViewHandler?.onEvent('device_orientation_started', (event: string) => {
+      eventBuilder.track(EventType.DeviceOrientationStarted, {});
+    });
+
+    webViewHandler?.onEvent('device_orientation_stopped', (event: string) => {
+      eventBuilder.track(EventType.DeviceOrientationStopped, {});
+    });
+
+    webViewHandler?.onEvent('device_orientation_changed', (event: string) => {
+      eventBuilder.track(EventType.DeviceOrientationChanged, {});
+    });
+
+    webViewHandler?.onEvent('device_orientation_failed', (event: string) => {
+      eventBuilder.track(EventType.DeviceOrientationFailed, {});
+    });
+
+    webViewHandler?.onEvent('gyroscope_started', (event: string) => {
+      eventBuilder.track(EventType.GyroscropeStarted, {});
+    });
+
+    webViewHandler?.onEvent('gyroscope_stopped', (event: string) => {
+      eventBuilder.track(EventType.GyroscropeStopped, {});
+    });
+
+    webViewHandler?.onEvent('gyroscope_changed', (event: string) => {
+      eventBuilder.track(EventType.GyroscropeChanged, {});
+    });
+
+    webViewHandler?.onEvent('gyroscope_failed', (event: string) => {
+      eventBuilder.track(EventType.GyroscropeFailed, {});
+    });
+
     webViewHandler?.onEvent(
       'invoice_closed',
       (event: string, data?: object) => {
