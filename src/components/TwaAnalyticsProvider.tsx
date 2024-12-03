@@ -11,11 +11,13 @@ import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
 import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
 import { getConfig } from '../config';
+import { TelegramWebAppData } from '../models/telegram-web-app-data';
 
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
   apiKey: string;
   appName: string;
+  telegramWebAppData?: TelegramWebAppData;
 };
 
 export type TwaAnalyticsProviderProps = {
@@ -61,7 +63,8 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
     throw new Error('TWA Analytics Provider: Missing projectId');
   }
 
-  const telegramWebAppData = loadTelegramWebAppData();
+  const telegramWebAppData =
+    options.telegramWebAppData || loadTelegramWebAppData();
 
   const eventBuilder = useMemo(() => {
     return new EventBuilder(
