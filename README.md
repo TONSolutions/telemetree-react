@@ -1,6 +1,6 @@
 ![](https://tc-images-api.s3.eu-central-1.amazonaws.com/gif_cropped.gif)
 
-# TON Solutions Telemetree library for React.js
+# Telegram Mini App analytics SDK for React
 
 ![Static Badge](https://img.shields.io/badge/build-passing-brightgreen?style=flat) ![GitHub top language](https://img.shields.io/github/languages/top/tonsolutions/telemetree-react) ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/tonsolutions/telemetree-react)
 
