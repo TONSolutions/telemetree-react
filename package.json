@@ -1,6 +1,6 @@
 {
   "name": "@tonsolutions/telemetree-react",
-  "version": "1.2.0",
+  "version": "1.2.5",
   "main": "./lib/index.сjs",
   "module": "./lib/index.mjs",
   "types": "./lib/index.d.ts",
@@ -37,7 +37,7 @@
   "files": [
     "lib"
   ],
-  "author": "strd0x",
+  "author": "Vlad Arbatov",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
@@ -58,13 +58,16 @@
     "vite-plugin-dts": "^3.6.3"
   },
   "peerDependencies": {
-    "react": ">=17.0.0"
+    "react": ">=17.0.0",
+    "@tonconnect/ui-react": "^2.0.9",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "peerDependenciesOptional": {
+    "@tonconnect/ui-react": true
   },
   "dependencies": {
-    "@testing-library/react": "^16.0.0",
     "crypto-js": "^4.2.0",
-    "jsencrypt": "^3.3.2",
-    "rollup-plugin-terser": "^7.0.2"
+    "jsencrypt": "^3.3.2"
   },
   "repository": {
     "type": "git",

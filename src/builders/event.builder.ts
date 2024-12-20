@@ -160,6 +160,9 @@ export class EventBuilder implements IEventBuilder {
     eventProperties: Record<string, any>,
   ): BaseEvent {
     const config = getConfig();
+    // Ensure wallet address is properly extracted from properties
+    const walletAddress = eventProperties.wallet || eventProperties.address;
+
     return createEvent(
       this.appName,
       eventName,
@@ -172,7 +175,7 @@ export class EventBuilder implements IEventBuilder {
       this.data.chat_instance || '0',
       getCurrentUTCTimestamp(),
       eventName.startsWith(config.defaultSystemEventPrefix),
-      eventProperties.wallet,
+      walletAddress, // Modified to handle both wallet and address properties
       this.sessionIdentifier,
     );
   }
@@ -225,22 +228,34 @@ export class EventBuilder implements IEventBuilder {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      // Enhanced logging with clearer transaction details
+      const params = event.eventDetails.params;
       Logger.info('Event processed successfully', {
         eventType: event.eventType,
+        details: {
+          ...params,
+          // Add transaction summary if messages exist
+          ...(params.messages?.[0] && {
+            transaction: {
+              from: params.from,
+              to: params.messages[0].address,
+              amount: params.messages[0].amount,
+            },
+          }),
+          // Keep original messages array for full details
+          timestamp: event.timestamp,
+        },
       });
     } catch (error) {
-      if (error instanceof Error) {
-        Logger.error('Error processing event', {
-          error: error.message,
-          stack: error.stack,
-          eventType: event.eventType,
-        });
-      } else {
-        Logger.error('Unknown error processing event', {
-          error,
-          eventType: event.eventType,
-        });
-      }
+      Logger.error('Error processing event', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        eventType: event.eventType,
+        details: {
+          params: event.eventDetails?.params,
+          timestamp: event.eventDetails?.params?.timestamp || event.timestamp,
+        },
+      });
     }
   }
 }

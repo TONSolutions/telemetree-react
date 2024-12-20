@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext,
   FunctionComponent,
   memo,
@@ -8,10 +8,11 @@ import {
 } from 'react';
 import { EventBuilder } from '../builders';
 import { loadTelegramWebAppData, webViewHandler } from '../telegram/telegram';
-import { TonConnectStorageData } from '../models/tonconnect-storage-data';
 import { EventType } from '../enum/event-type.enum';
 import { getConfig } from '../config';
 import { Telegram } from '../telegram';
+import { TonConnectObserver } from '../observers/ton-connect.observer';
+import { Logger } from '../utils/logger';
 
 declare global {
   interface Window {
@@ -23,6 +24,10 @@ declare global {
   }
 }
 
+export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
+  null,
+);
+
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
   apiKey: string;
@@ -32,15 +37,6 @@ export type TwaAnalyticsProviderOptions = {
 export type TwaAnalyticsProviderProps = {
   children: ReactNode;
 } & TwaAnalyticsProviderOptions;
-
-export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
-  null,
-);
-
-const WalletConnectedKey = 'walletConnected';
-
-const TonConnectLocalStorageKey = 'ton-connect-storage_bridge-connection';
-const TonConnectProviderNameLocalStorageKey = 'ton-connect-ui_preferred-wallet';
 
 export type TwaAnalyticsConfig = {
   host: string;
@@ -82,6 +78,24 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       telegramWebAppData,
     );
   }, []);
+
+  // Initialize TON Connect observer with await
+  useEffect(() => {
+    let observer: TonConnectObserver | null = null;
+
+    try {
+      observer = new TonConnectObserver(eventBuilder);
+      Logger.info('TON Connect observer initialized successfully');
+    } catch (error) {
+      Logger.error('Failed to initialize TON Connect observer', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+
+    return () => {
+      observer?.destroy();
+    };
+  }, [eventBuilder]);
 
   useEffect(() => {
     webViewHandler?.onEvent('main_button_pressed', (event: string) => {
@@ -391,4 +405,5 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   );
 };
 
-export default memo(TwaAnalyticsProvider);
+// Export the component as default
+export default TwaAnalyticsProvider;
