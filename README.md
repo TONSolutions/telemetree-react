@@ -34,9 +34,9 @@ Start capturing valuable insights with Telemetree and make data-driven decisions
 Consider visiting our resources for more info about the state of the Telegram Mini Apps ecosystem and Telegram analytics.
 
 - [Website](https://www.telemetree.io/)
-- [Twitter](https://x.com/telemetree_HQ) 
+- [Twitter](https://x.com/telemetree_HQ)
 - [Telegram channel](https://t.me/telemetree_en)
-- [LinkedIn](https://linkedin.com/company/telemetree) 
+- [LinkedIn](https://linkedin.com/company/telemetree)
 - [Medium](https://medium.com/@telemetree)
 - [Documentation](https://docs.telemetree.io/)
 
@@ -83,6 +83,9 @@ builder.track('transfer', {
   method: 'TON',
 });
 ```
+
+In order to track TON related operations, such as wallet connections, signed transactions etc, you should use `@tonconnect/ui` or `@tonconnect/ui-react`. When these libs are detected, Telemetree will automatically log on-chain events.
+
 ## Other SDKs
 Telemetree SDKs are available for various frameworks and environments, making it easy to incorporate powerful analytics into any Telegram Mini App.
 - React SDK: https://github.com/TONSolutions/telemetree-react

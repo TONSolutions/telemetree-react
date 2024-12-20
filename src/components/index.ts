@@ -1,6 +1,7 @@
+export { default as TwaAnalyticsProvider } from './TwaAnalyticsProvider';
 export {
-  default as TwaAnalyticsProvider,
-  type TwaAnalyticsProviderOptions,
-  type TwaAnalyticsProviderProps,
   TwaAnalyticsProviderContext,
+  type TwaAnalyticsProviderProps,
+  type TwaAnalyticsProviderOptions,
+  type TwaAnalyticsConfig,
 } from './TwaAnalyticsProvider';
