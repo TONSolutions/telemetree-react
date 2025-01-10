@@ -21,6 +21,7 @@ declare global {
       WebView?: Telegram.WebView;
     };
     __telemetreeSessionStarted?: boolean;
+    __telemetreeTonObserverStarted?: boolean;
   }
 }
 
@@ -83,13 +84,16 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   useEffect(() => {
     let observer: TonConnectObserver | null = null;
 
-    try {
-      observer = new TonConnectObserver(eventBuilder);
-      Logger.info('TON Connect observer initialized successfully');
-    } catch (error) {
-      Logger.error('Failed to initialize TON Connect observer', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
+    if (!window.__telemetreeTonObserverStarted){
+      try {
+        observer = new TonConnectObserver(eventBuilder);
+        window.__telemetreeTonObserverStarted = true;
+        Logger.info('TON Connect observer initialized successfully');
+      } catch (error) {
+        Logger.error('Failed to initialize TON Connect observer', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
     }
 
     return () => {
