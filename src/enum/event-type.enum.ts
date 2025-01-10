@@ -1,7 +1,6 @@
 export enum EventType {
   Click = 'Click',
   PageView = 'Pageview',
-  Wallet = 'Wallet',
   Closed = 'Closed',
   MainButtonPressed = 'MainButtonPressed',
   SettingsButtonPressed = 'SettingsButtonPressed',
@@ -40,8 +39,8 @@ export enum EventType {
   SessionEnd = 'Session end',
 
   // Wallet events
+  Wallet = 'Wallet',
   WalletConnectStarted = 'Wallet connect started',
-  WalletConnected = 'Wallet connected',
   WalletConnectError = 'Wallet connect error',
   WalletConnectionRestoringStarted = 'Wallet connection restoring started',
   WalletConnectionRestored = 'Wallet connection restored',
