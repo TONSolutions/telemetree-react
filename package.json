@@ -1,6 +1,6 @@
 {
   "name": "@tonsolutions/telemetree-react",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "main": "./lib/index.сjs",
   "module": "./lib/index.mjs",
   "types": "./lib/index.d.ts",

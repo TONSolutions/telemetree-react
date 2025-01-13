@@ -143,24 +143,28 @@ export class TonConnectObserver {
     eventDetails: any,
   ): Promise<void> {
     const config = getConfig();
+    const isTonConnected = localStorage.getItem('telemetree-ton-is-connected') === 'true';
     Logger.debug('Raw event details:', { eventName, eventDetails }); // Add this debug log
     try {
       switch (eventName) {
         case TonConnectEvent.WalletConnectSuccess: {
-          const details = eventDetails as WalletConnectionEvent;
-          await this.eventBuilder.track(
-            `${EventType.Wallet}`,
-            {
-              wallet: details?.account?.address || details?.wallet_address,
-              provider: details?.wallet?.name || 'unknown',
-              chain: details?.account?.chain,
-              wallet_type: eventDetails.wallet_type,
-              wallet_version: eventDetails.wallet_version,
-              sdk_version: eventDetails.custom_data?.ton_connect_sdk_lib,
-              ui_version: eventDetails.custom_data?.ton_connect_ui_lib,
-              timestamp: Date.now(),
-            },
-          );
+          if (!isTonConnected) {
+            localStorage.setItem('telemetree-ton-is-connected', "true");
+            const details = eventDetails as WalletConnectionEvent;
+            await this.eventBuilder.track(
+              `${EventType.Wallet}`,
+              {
+                wallet: details?.account?.address || details?.wallet_address,
+                provider: details?.wallet?.name || 'unknown',
+                chain: details?.account?.chain,
+                wallet_type: eventDetails.wallet_type,
+                wallet_version: eventDetails.wallet_version,
+                sdk_version: eventDetails.custom_data?.ton_connect_sdk_lib,
+                ui_version: eventDetails.custom_data?.ton_connect_ui_lib,
+                timestamp: Date.now(),
+              },
+            );
+          }
           break;
         }
 
@@ -236,6 +240,9 @@ export class TonConnectObserver {
         }
 
         case TonConnectEvent.WalletDisconnect: {
+          if (isTonConnected) {
+            localStorage.setItem('telemetree-ton-is-connected', "false");
+          }
           await this.eventBuilder.track(
             `${config.defaultSystemEventPrefix} ${EventType.WalletDisconnected}`,
             {
