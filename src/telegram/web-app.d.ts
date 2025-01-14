@@ -185,7 +185,7 @@ export declare namespace Telegram {
     openTelegramLink: (url: string) => void;
 
     // Invoice methods
-    openInvoice: (url: string) => Promise<{
+    openInvoice: (url: string, callback?: any) => Promise<{
       url: string;
       status: 'paid' | 'cancelled' | 'failed' | 'pending';
     }>;
