@@ -23,7 +23,6 @@ export class EventBuilder implements IEventBuilder {
   constructor(
     private readonly projectId: string,
     private readonly apiKey: string,
-    private readonly appName: string,
     private readonly data: TelegramWebAppData,
   ) {
     this.init();
@@ -164,7 +163,6 @@ export class EventBuilder implements IEventBuilder {
     const walletAddress = eventProperties.wallet || eventProperties.address;
 
     return createEvent(
-      this.appName,
       eventName,
       this.getUserDetails(),
       this.getEventDetails(eventProperties),
