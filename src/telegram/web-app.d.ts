@@ -182,7 +182,7 @@ export declare namespace Telegram {
 
     // Link handling
     openLink: (url: string, options?: { try_instant_view?: boolean }) => void;
-    openTelegramLink: (url: string) => void;
+    openTelegramLink: (url: string, options?: { try_instant_view?: boolean }) => void;
 
     // Invoice methods
     openInvoice: (url: string, callback?: any) => Promise<{

@@ -37,6 +37,8 @@ export enum EventType {
   ShareToStory = 'Story shared',
   SessionStart = 'Session start',
   SessionEnd = 'Session end',
+  OpenLink = 'Link opened',
+  OpenTgLink = 'Telegram link opened',
 
   // Wallet events
   Wallet = 'Wallet',
