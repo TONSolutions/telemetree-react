@@ -15,7 +15,6 @@ export interface EventDetails {
 export interface BaseEvent {
   eventType: string;
   userDetails: EventUserDetails;
-  app: string;
   eventDetails: EventDetails;
   telegramID: string;
   language: string;

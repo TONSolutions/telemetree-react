@@ -1,7 +1,6 @@
 import { BaseEvent, EventDetails, EventUserDetails } from '../types';
 
 export const createEvent = (
-  appName: string,
   eventName: string,
   userDetails: EventUserDetails,
   eventDetails: EventDetails,
@@ -19,7 +18,6 @@ export const createEvent = (
   return {
     eventType: eventName,
     userDetails,
-    app: appName,
     eventDetails,
     telegramID,
     language,

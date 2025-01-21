@@ -32,7 +32,6 @@ export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
   apiKey: string;
-  appName: string;
 };
 
 export type TwaAnalyticsProviderProps = {
@@ -75,7 +74,6 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
     return new EventBuilder(
       options.projectId,
       options.apiKey,
-      options.appName,
       telegramWebAppData,
     );
   }, []);
