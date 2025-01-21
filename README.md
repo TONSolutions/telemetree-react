@@ -87,6 +87,6 @@ In order to track TON related operations, such as wallet connections, signed tra
 
 ## Other SDKs
 Telemetree SDKs are available for various frameworks and environments, making it easy to incorporate powerful analytics into any Telegram Mini App.
-- React SDK: https://github.com/TONSolutions/telemetree-react
-- Node.js SDK: https://github.com/TONSolutions/telemetree-node
+- React SDK: https://github.com/Telemetree/telemetree-react
+- Node.js SDK: https://github.com/Telemetree/telemetree-node
 - .NET SDK: https://github.com/MANABbl4/Telemetree.Net (community-supported)
