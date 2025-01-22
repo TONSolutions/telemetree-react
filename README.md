@@ -59,13 +59,14 @@ Call this script in `<head>`:
 In your app:
 
 ```javascript
-import { TwaAnalyticsProvider } from '@tonsolutions/telemetree-react';
+import { TrackGroups, TwaAnalyticsProvider } from '@tonsolutions/telemetree-react';
 
 export function App() {
   return (
     <TwaAnalyticsProvider
       projectId="YOUR_PROJECT_ID"
       apiKey="YOUR_API_KEY"
+      trackGroup={TrackGroups.MEDIUM}
     >
       ...
     </TwaAnalyticsProvider>
@@ -90,3 +91,117 @@ Telemetree SDKs are available for various frameworks and environments, making it
 - React SDK: https://github.com/Telemetree/telemetree-react
 - Node.js SDK: https://github.com/Telemetree/telemetree-node
 - .NET SDK: https://github.com/MANABbl4/Telemetree.Net (community-supported)
+
+## Tracking groups
+false - no tracking
+### Low
+```
+- Pageview
+
+- Session start
+
+- Wallet (ton connect events)
+
+- Invoice opened (webApp event)
+
+- Invoice closed (webApp event)
+
+- Transaction signed (ton connect events)
+```
+
+### Medium
+```
+All in Low group
+
+- Click
+
+- openLink (webApp event)
+
+- openTelegramLink (webApp event)
+
+```
+
+### High
+```
+All in Medium group
+
+Web app events:
+
+- MainButtonPressed
+
+- SettingsButtonPressed
+
+- BackButtonPressed
+
+- SecondaryButtonPressed
+
+- PreparedMessageSent
+
+- FullScreenChanged
+
+- HomeScreenAdded
+
+- HomeScreenChecked
+
+- EmojiStatusSet
+
+- LocationChecked
+
+- LocationRequested
+
+- AccelerometerStarted
+
+- AccelerometerStopped
+
+- AccelerometerChanged
+
+- DeviceOrientationStarted
+
+- DeviceOrientationStopped
+
+- DeviceOrientationChanged
+
+- DeviceOrientationFailed
+
+- GyroscropeStarted
+
+- GyroscropeStopped
+
+- GyroscropeChanged
+
+- GyroscropeFailed
+
+- PopupClosed
+
+- WriteAccessRequested
+
+- QRTextReceived
+
+- PhoneRequested
+
+- WebAppExitFullscreen
+
+- Session end (webApp.close)
+
+- Inline query opened (webApp.switchInlineQuery)
+
+- Fullscreen on
+
+- Fullscreen off
+
+- Story shared (webApp.shareStory)
+
+TON connect events:
+- Transaction sent for signature
+
+- Transaction signing failed
+
+- Wallet disconnected
+
+- Wallet connection restore error
+
+- Wallet connection restored
+
+- Wallet connection restoring started
+
+```

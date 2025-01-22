@@ -5,3 +5,7 @@ export {
   type TwaAnalyticsProviderOptions,
   type TwaAnalyticsConfig,
 } from './TwaAnalyticsProvider';
+
+export {
+  TrackGroups,
+} from './trackGroups';

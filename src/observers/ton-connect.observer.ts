@@ -2,6 +2,7 @@ import { EventBuilder } from '../builders';
 import { EventType, TonConnectEvent } from '../enum/event-type.enum';
 import { getConfig } from '../config';
 import { Logger } from '../utils/logger';
+import {TrackGroups} from "../components/trackGroups";
 
 interface TonConnectErrorEvent {
   error: {
@@ -144,6 +145,7 @@ export class TonConnectObserver {
   ): Promise<void> {
     const config = getConfig();
     const isTonConnected = localStorage.getItem('telemetree-ton-is-connected') === 'true';
+    const trackGroup = this.eventBuilder.getTrackGroup();
     Logger.debug('Raw event details:', { eventName, eventDetails }); // Add this debug log
     try {
       switch (eventName) {
@@ -169,28 +171,30 @@ export class TonConnectObserver {
         }
 
         case TonConnectEvent.TransactionSentForSignature: {
-          await this.eventBuilder.track(
-            `${config.defaultSystemEventPrefix} ${EventType.TransactionSentForSignature}`,
-            {
-              messages: eventDetails.messages?.map((msg: any) => ({
-                address: msg.address,
-                amount: msg.amount,
-                payload: msg.payload,
-              })),
-              from: eventDetails.from,
-              network: eventDetails.network,
-              validUntil: eventDetails.valid_until,
-              // Add wallet details
-              wallet_type: eventDetails.wallet_type,
-              wallet_version: eventDetails.wallet_version,
-              // Add custom data
-              chain_id: eventDetails.custom_data?.chain_id,
-              provider: eventDetails.custom_data?.provider,
-              sdk_version: eventDetails.custom_data?.ton_connect_sdk_lib,
-              ui_version: eventDetails.custom_data?.ton_connect_ui_lib,
-              timestamp: Date.now(),
-            },
-          );
+          if (trackGroup == TrackGroups.HIGH) {
+            await this.eventBuilder.track(
+              `${config.defaultSystemEventPrefix} ${EventType.TransactionSentForSignature}`,
+              {
+                messages: eventDetails.messages?.map((msg: any) => ({
+                  address: msg.address,
+                  amount: msg.amount,
+                  payload: msg.payload,
+                })),
+                from: eventDetails.from,
+                network: eventDetails.network,
+                validUntil: eventDetails.valid_until,
+                // Add wallet details
+                wallet_type: eventDetails.wallet_type,
+                wallet_version: eventDetails.wallet_version,
+                // Add custom data
+                chain_id: eventDetails.custom_data?.chain_id,
+                provider: eventDetails.custom_data?.provider,
+                sdk_version: eventDetails.custom_data?.ton_connect_sdk_lib,
+                ui_version: eventDetails.custom_data?.ton_connect_ui_lib,
+                timestamp: Date.now(),
+              },
+            );
+          }
           break;
         }
 
@@ -217,25 +221,27 @@ export class TonConnectObserver {
         }
 
         case TonConnectEvent.TransactionSigningFailed: {
-          await this.eventBuilder.track(
-            `${config.defaultSystemEventPrefix} ${EventType.TransactionSigningFailed}`,
-            {
-              error_code: eventDetails.error_code,
-              error_message: eventDetails.error_message,
-              is_success: eventDetails.is_success,
+          if (trackGroup == TrackGroups.HIGH) {
+            await this.eventBuilder.track(
+              `${config.defaultSystemEventPrefix} ${EventType.TransactionSigningFailed}`,
+              {
+                error_code: eventDetails.error_code,
+                error_message: eventDetails.error_message,
+                is_success: eventDetails.is_success,
 
-              from: eventDetails.from,
-              messages: eventDetails.messages,
-              valid_until: eventDetails.valid_until,
-              auth_type: eventDetails.auth_type,
+                from: eventDetails.from,
+                messages: eventDetails.messages,
+                valid_until: eventDetails.valid_until,
+                auth_type: eventDetails.auth_type,
 
-              wallet_type: eventDetails.wallet_type,
-              wallet_version: eventDetails.wallet_version,
-              wallet_address: eventDetails.wallet_address,
+                wallet_type: eventDetails.wallet_type,
+                wallet_version: eventDetails.wallet_version,
+                wallet_address: eventDetails.wallet_address,
 
-              timestamp: Date.now(),
-            },
-          );
+                timestamp: Date.now(),
+              },
+            );
+          }
           break;
         }
 
@@ -243,52 +249,60 @@ export class TonConnectObserver {
           if (isTonConnected) {
             localStorage.setItem('telemetree-ton-is-connected', "false");
           }
-          await this.eventBuilder.track(
-            `${config.defaultSystemEventPrefix} ${EventType.WalletDisconnected}`,
-            {
-              lastWallet: eventDetails?.wallet_address,
-              timestamp: Date.now(),
-            },
-          );
+          if (trackGroup === TrackGroups.HIGH) {
+            await this.eventBuilder.track(
+              `${config.defaultSystemEventPrefix} ${EventType.WalletDisconnected}`,
+              {
+                lastWallet: eventDetails?.wallet_address,
+                timestamp: Date.now(),
+              },
+            );
+          }
           break;
         }
 
         case TonConnectEvent.ConnectionRestoringError: {
-          await this.eventBuilder.track(
-            `${config.defaultSystemEventPrefix} ${EventType.WalletConnectionRestoreError}`,
-            {
-              wallet_type: eventDetails.wallet_type,
-              wallet_version: eventDetails.wallet_version,
-              wallet: eventDetails?.wallet_address,
-              timestamp: Date.now(),
-            },
-          );
+          if (trackGroup == TrackGroups.HIGH) {
+            await this.eventBuilder.track(
+              `${config.defaultSystemEventPrefix} ${EventType.WalletConnectionRestoreError}`,
+              {
+                wallet_type: eventDetails.wallet_type,
+                wallet_version: eventDetails.wallet_version,
+                wallet: eventDetails?.wallet_address,
+                timestamp: Date.now(),
+              },
+            );
+          }
           break;
         }
 
         case TonConnectEvent.ConnectionRestoringSuccess: {
-          await this.eventBuilder.track(
-            `${config.defaultSystemEventPrefix} ${EventType.WalletConnectionRestored}`,
-            {
-              wallet_type: eventDetails.wallet_type,
-              wallet_version: eventDetails.wallet_version,
-              wallet: eventDetails?.wallet_address,
-              timestamp: Date.now(),
-            },
-          );
+          if (trackGroup == TrackGroups.HIGH) {
+            await this.eventBuilder.track(
+              `${config.defaultSystemEventPrefix} ${EventType.WalletConnectionRestored}`,
+              {
+                wallet_type: eventDetails.wallet_type,
+                wallet_version: eventDetails.wallet_version,
+                wallet: eventDetails?.wallet_address,
+                timestamp: Date.now(),
+              },
+            );
+          }
           break;
         }
 
         case TonConnectEvent.ConnectionRestoringStarted: {
-          await this.eventBuilder.track(
-            `${config.defaultSystemEventPrefix} ${EventType.WalletConnectionRestoringStarted}`,
-            {
-              wallet_type: eventDetails.wallet_type,
-              wallet_version: eventDetails.wallet_version,
-              wallet: eventDetails?.wallet_address,
-              timestamp: Date.now(),
-            },
-          );
+          if (trackGroup == TrackGroups.HIGH) {
+            await this.eventBuilder.track(
+              `${config.defaultSystemEventPrefix} ${EventType.WalletConnectionRestoringStarted}`,
+              {
+                wallet_type: eventDetails.wallet_type,
+                wallet_version: eventDetails.wallet_version,
+                wallet: eventDetails?.wallet_address,
+                timestamp: Date.now(),
+              },
+            );
+          }
           break;
         }
       }

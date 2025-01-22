@@ -13,6 +13,7 @@ import { BaseEvent, Transport } from '../types';
 import { createEvent } from '../utils/create-event';
 import { encryptMessage } from '../helpers/encryption.helper';
 import { Logger } from '../utils/logger';
+import {TrackGroups} from "../components/trackGroups";
 
 export class EventBuilder implements IEventBuilder {
   private transport: Transport | null = null;
@@ -24,6 +25,7 @@ export class EventBuilder implements IEventBuilder {
     private readonly projectId: string,
     private readonly apiKey: string,
     private readonly data: TelegramWebAppData,
+    protected readonly trackGroup: TrackGroups | false | null = null,
   ) {
     this.init();
   }
@@ -62,6 +64,10 @@ export class EventBuilder implements IEventBuilder {
     return getConfig().requestTimeout;
   }
 
+  public getTrackGroup() {
+    return this.trackGroup;
+  }
+
   private setupTransport(): void {
     this.transport = TransportFactory.getTransport('http', {
       headers: {
@@ -74,7 +80,7 @@ export class EventBuilder implements IEventBuilder {
   }
 
   private setupAutoCaptureListener(): void {
-    if (this.config?.auto_capture) {
+    if (this.config?.auto_capture && (this.trackGroup == TrackGroups.MEDIUM || this.trackGroup == TrackGroups.HIGH)) {
       const trackTags = this.config.auto_capture_tags.map((tag: string) =>
         tag.toUpperCase(),
       );

@@ -13,6 +13,7 @@ import { getConfig } from '../config';
 import { Telegram } from '../telegram';
 import { TonConnectObserver } from '../observers/ton-connect.observer';
 import { Logger } from '../utils/logger';
+import {trackGroupHigh, trackGroupLow, trackGroupMedium, TrackGroups} from "./trackGroups";
 
 declare global {
   interface Window {
@@ -32,6 +33,7 @@ export const TwaAnalyticsProviderContext = createContext<EventBuilder | null>(
 export type TwaAnalyticsProviderOptions = {
   projectId: string;
   apiKey: string;
+  trackGroup?: TrackGroups | false;
 };
 
 export type TwaAnalyticsProviderProps = {
@@ -46,15 +48,6 @@ export type TwaAnalyticsConfig = {
   public_key: string;
 };
 
-function getElementProperties(element: HTMLElement): Record<string, string> {
-  return {
-    tagName: element.tagName,
-    id: element.id,
-    className: element.className,
-    // Add any other properties you want to capture
-  };
-}
-
 /**
  * @param children JSX to insert.
  * @param [options] additional options.
@@ -64,6 +57,8 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   children,
   ...options
 }) => {
+  const trackGroup = options.trackGroup !== undefined ? options.trackGroup : TrackGroups.MEDIUM;
+
   if (!options.projectId) {
     throw new Error('TWA Analytics Provider: Missing projectId');
   }
@@ -75,6 +70,7 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
       options.projectId,
       options.apiKey,
       telegramWebAppData,
+      trackGroup
     );
   }, []);
 
@@ -82,343 +78,39 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   useEffect(() => {
     let observer: TonConnectObserver | null = null;
 
-    if (!window.__telemetreeTonObserverStarted){
-      try {
-        observer = new TonConnectObserver(eventBuilder);
-        window.__telemetreeTonObserverStarted = true;
-        Logger.info('TON Connect observer initialized successfully');
-      } catch (error) {
-        Logger.error('Failed to initialize TON Connect observer', {
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+    if (trackGroup) {
+      if (!window.__telemetreeTonObserverStarted) {
+        try {
+          observer = new TonConnectObserver(eventBuilder);
+          window.__telemetreeTonObserverStarted = true;
+          Logger.info('TON Connect observer initialized successfully');
+        } catch (error) {
+          Logger.error('Failed to initialize TON Connect observer', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
       }
     }
-
     return () => {
       observer?.destroy();
     };
   }, [eventBuilder]);
 
   useEffect(() => {
-    webViewHandler?.onEvent('main_button_pressed', (event: string) => {
-      eventBuilder.track(EventType.MainButtonPressed, {});
-    });
-
-    webViewHandler?.onEvent('settings_button_pressed', (event: string) => {
-      eventBuilder.track(EventType.SettingsButtonPressed, {});
-    });
-
-    webViewHandler?.onEvent('back_button_pressed', (event: string) => {
-      eventBuilder.track(EventType.BackButtonPressed, {});
-    });
-
-    webViewHandler?.onEvent(
-      'secondary_button_pressed',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.SecondaryButtonPressed, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent('prepared_message_sent', (event: string) => {
-      eventBuilder.track(EventType.PreparedMessageSent, {});
-    });
-
-    webViewHandler?.onEvent(
-      'fullscreen_changed',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.FullScreenChanged, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent('home_screen_added', (event: string) => {
-      eventBuilder.track(EventType.HomeScreenAdded, {});
-    });
-
-    webViewHandler?.onEvent(
-      'home_screen_checked',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.HomeScreenChecked, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent('emoji_status_set', (event: string) => {
-      eventBuilder.track(EventType.EmojiStatusSet, {});
-    });
-
-    webViewHandler?.onEvent(
-      'location_checked',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.LocationChecked, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent(
-      'location_requested',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.LocationRequested, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent('accelerometer_started', (event: string) => {
-      eventBuilder.track(EventType.AccelerometerStarted, {});
-    });
-
-    webViewHandler?.onEvent('accelerometer_stopped', (event: string) => {
-      eventBuilder.track(EventType.AccelerometerStopped, {});
-    });
-
-    webViewHandler?.onEvent('accelerometer_changed', (event: string) => {
-      eventBuilder.track(EventType.AccelerometerChanged, {});
-    });
-
-    webViewHandler?.onEvent('device_orientation_started', (event: string) => {
-      eventBuilder.track(EventType.DeviceOrientationStarted, {});
-    });
-
-    webViewHandler?.onEvent('device_orientation_stopped', (event: string) => {
-      eventBuilder.track(EventType.DeviceOrientationStopped, {});
-    });
-
-    webViewHandler?.onEvent('device_orientation_changed', (event: string) => {
-      eventBuilder.track(EventType.DeviceOrientationChanged, {});
-    });
-
-    webViewHandler?.onEvent('device_orientation_failed', (event: string) => {
-      eventBuilder.track(EventType.DeviceOrientationFailed, {});
-    });
-
-    webViewHandler?.onEvent('gyroscope_started', (event: string) => {
-      eventBuilder.track(EventType.GyroscropeStarted, {});
-    });
-
-    webViewHandler?.onEvent('gyroscope_stopped', (event: string) => {
-      eventBuilder.track(EventType.GyroscropeStopped, {});
-    });
-
-    webViewHandler?.onEvent('gyroscope_changed', (event: string) => {
-      eventBuilder.track(EventType.GyroscropeChanged, {});
-    });
-
-    webViewHandler?.onEvent('gyroscope_failed', (event: string) => {
-      eventBuilder.track(EventType.GyroscropeFailed, {});
-    });
-
-    webViewHandler?.onEvent(
-      'invoice_closed',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.InvoiceClosed, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent(
-      'clipboard_text_received',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.ClipboardTextReceived, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent('popup_closed', (event: string, data?: object) => {
-      eventBuilder.track(EventType.PopupClosed, {});
-    });
-
-    webViewHandler?.onEvent(
-      'write_access_requested',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.WriteAccessRequested, {});
-      },
-    );
-
-    webViewHandler?.onEvent(
-      'qr_text_received',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.QRTextReceived, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent(
-      'phone_requested',
-      (event: string, data?: object) => {
-        eventBuilder.track(EventType.PhoneRequested, {
-          ...data,
-        });
-      },
-    );
-
-    webViewHandler?.onEvent('web_app_request_fullscreen', (event: string) => {
-      eventBuilder.track(EventType.WebAppRequestFullscreen, {
-        timestamp: Date.now(),
-      });
-    });
-
-    webViewHandler?.onEvent('web_app_exit_fullscreen', (event: string) => {
-      eventBuilder.track(EventType.WebAppExitFullscreen, {
-        timestamp: Date.now(),
-      });
-    });
-
     const webApp = window?.Telegram?.WebApp;
-    if (webApp) {
-      // Track session start and initial page view when WebApp is initialized
-      if (!window.__telemetreeSessionStarted) {
-        window.__telemetreeSessionStarted = true;
 
-        // Track session start
-        eventBuilder.track(EventType.SessionStart, {
-          timestamp: Date.now(),
-          platform: webApp.platform,
-          version: webApp.version,
-          colorScheme: webApp.colorScheme,
-          viewportHeight: webApp.viewportHeight,
-          viewportStableHeight: webApp.viewportStableHeight,
-          isExpanded: webApp.isExpanded,
-        });
-
-        // Track initial page view
-        const locationPath = location.pathname || '/';
-        eventBuilder.track(`${EventType.PageView} ${locationPath}`, {
-          path: locationPath,
-          timestamp: Date.now(),
-        });
+    if (trackGroup) {
+      if (trackGroup === TrackGroups.LOW) {
+        trackGroupLow(eventBuilder, webApp);
       }
 
-      // Store original methods
-      const originalClose = webApp.close;
-      const originalSwitchInlineQuery = webApp.switchInlineQuery;
-      const originalOpenInvoice = webApp.openInvoice;
-      const originalShareToStory = webApp.shareToStory;
-      const originalOpenLink = webApp.openLink;
-      const originalOpenTelegramLink = webApp.openTelegramLink;
+      if (trackGroup === TrackGroups.MEDIUM) {
+        trackGroupMedium(eventBuilder, webApp);
+      }
 
-      webApp.close = () => {
-        eventBuilder.track(EventType.SessionEnd, {
-          timestamp: Date.now(),
-          platform: webApp.platform,
-          version: webApp.version,
-          colorScheme: webApp.colorScheme,
-          viewportHeight: webApp.viewportHeight,
-          viewportStableHeight: webApp.viewportStableHeight,
-          isExpanded: webApp.isExpanded,
-        });
-
-        // Tiny delay to ensure event gets sent
-        setTimeout(() => {
-          originalClose.call(webApp);
-        }, 50);
-      };
-
-      webApp.switchInlineQuery = (
-        query: string,
-        chat_types?: Array<'users' | 'bots' | 'groups' | 'channels'>,
-      ) => {
-        // Track the event with query and chat_types data
-        eventBuilder.track(`${EventType.SwitchInlineQuery}: ${query}`, {
-          query: query,
-          chat_types: chat_types || [],
-          timestamp: Date.now(),
-        });
-
-        // Call original method
-        return originalSwitchInlineQuery.call(webApp, query, chat_types);
-      };
-
-      webApp.openInvoice = (url: string, callback?: any) => {
-        const slug = url.split('/').pop() || '';
-
-        eventBuilder.track(`${EventType.InvoiceOpened}: ${slug}`, {
-          url: url,
-          slug: slug,
-          timestamp: Date.now(),
-        });
-
-        return originalOpenInvoice.call(webApp, url, callback);
-      };
-
-      let lastViewportHeight = webApp.viewportHeight;
-      let isCurrentlyExpanded = false;
-
-      const viewportChangeHandler = (event: { isStateStable: boolean }) => {
-        // Fullscreen tracking only
-        const heightIncreased = webApp.viewportHeight > lastViewportHeight;
-
-        if (heightIncreased && !isCurrentlyExpanded) {
-          isCurrentlyExpanded = true;
-          eventBuilder.track(EventType.WebAppRequestFullscreen, {
-            timestamp: Date.now(),
-            isStateStable: event.isStateStable,
-            previousViewportHeight: lastViewportHeight,
-            newViewportHeight: webApp.viewportHeight,
-            viewportStableHeight: webApp.viewportStableHeight,
-          });
-        } else if (!heightIncreased && isCurrentlyExpanded) {
-          isCurrentlyExpanded = false;
-          eventBuilder.track(EventType.WebAppExitFullscreen, {
-            timestamp: Date.now(),
-            isStateStable: event.isStateStable,
-            previousViewportHeight: lastViewportHeight,
-            newViewportHeight: webApp.viewportHeight,
-            viewportStableHeight: webApp.viewportStableHeight,
-          });
-        }
-
-        lastViewportHeight = webApp.viewportHeight;
-      };
-
-      webApp.onEvent('viewportChanged', viewportChangeHandler);
-
-      webApp.shareToStory = (media_url: string, params?: { text?: string }) => {
-        eventBuilder.track(`${EventType.ShareToStory}: ${media_url}`, {
-          media_url: media_url,
-          text: params?.text,
-          timestamp: Date.now(),
-        });
-
-        return originalShareToStory.call(webApp, media_url, params);
-      };
-
-      webApp.openLink = (url: string, options?: any) => {
-        eventBuilder.track(`${EventType.OpenLink}: ${url}`, {
-          url: url,
-          options: options,
-          timestamp: Date.now(),
-        });
-
-        return originalOpenLink.call(webApp, url, options);
-      };
-
-      webApp.openTelegramLink = (url: string, options?: any) => {
-        eventBuilder.track(`${EventType.OpenTgLink}: ${url}`, {
-          url: url,
-          options: options,
-          timestamp: Date.now(),
-        });
-
-        return originalOpenTelegramLink.call(webApp, url, options);
-      };
-
-      return () => {
-        // Restore original methods on cleanup
-        webApp.close = originalClose;
-        webApp.switchInlineQuery = originalSwitchInlineQuery;
-        webApp.openInvoice = originalOpenInvoice;
-        webApp.shareToStory = originalShareToStory;
-        webApp.offEvent('viewportChanged', viewportChangeHandler);
-      };
+      if (trackGroup === TrackGroups.HIGH) {
+        trackGroupHigh(eventBuilder, webApp);
+      }
     }
   }, [eventBuilder]);
 

@@ -9,6 +9,7 @@ export { useTWAEvent } from './hooks';
 export {
   type TwaAnalyticsProviderProps,
   type TwaAnalyticsProviderOptions,
+  TrackGroups,
   TwaAnalyticsProvider,
 } from './components';
 export {
