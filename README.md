@@ -66,7 +66,7 @@ export function App() {
     <TwaAnalyticsProvider
       projectId="YOUR_PROJECT_ID"
       apiKey="YOUR_API_KEY"
-      trackGroup={TrackGroups.MEDIUM}
+      trackGroup={TrackGroups.HIGH} // default is TrackGroups.HIGH
     >
       ...
     </TwaAnalyticsProvider>
