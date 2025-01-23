@@ -66,7 +66,6 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   const telegramWebAppData = loadTelegramWebAppData();
 
   const eventBuilder = useMemo(() => {
-    console.log('create event builder');
     return new EventBuilder(
       options.projectId,
       options.apiKey,
