@@ -57,7 +57,7 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   children,
   ...options
 }) => {
-  const trackGroup = options.trackGroup !== undefined ? options.trackGroup : TrackGroups.MEDIUM;
+  const trackGroup = options.trackGroup !== undefined ? options.trackGroup : TrackGroups.HIGH;
 
   if (!options.projectId) {
     throw new Error('TWA Analytics Provider: Missing projectId');
@@ -66,6 +66,7 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
   const telegramWebAppData = loadTelegramWebAppData();
 
   const eventBuilder = useMemo(() => {
+    console.log('create event builder');
     return new EventBuilder(
       options.projectId,
       options.apiKey,
