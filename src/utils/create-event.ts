@@ -15,6 +15,8 @@ export const createEvent = (
   sessionIdentifier?: string,
   eventSource: string = 'telemetree_twa',
 ): BaseEvent => {
+
+  console.log('createEvent', eventName, userDetails, eventDetails, telegramID, language, device, referrerType, referrer, timestamp, isAutocapture, wallet, sessionIdentifier, eventSource);
   return {
     eventType: eventName,
     userDetails,
