@@ -196,8 +196,21 @@ export class EventBuilder implements IEventBuilder {
   }
 
   private getEventDetails(eventProperties: Record<string, any>) {
+    const queryString = window.location.search;
+
+    const urlParams = new URLSearchParams(queryString);
+
+    const paramsObj: Record<string, string> = {};
+
+    for (const [key, value] of urlParams.entries()) {
+      paramsObj[key] = value;
+    }
+
+    const paramsString = Object.keys(paramsObj).length === 0 ? "" : Object.keys(paramsObj).map(key => `${key}: ${paramsObj[key]}`).join(', ');
+
+
     return {
-      startParameter: this.data.start_param || '',
+      startParameter: this.data.start_param || paramsString,
       path: document.location.pathname,
       params: eventProperties,
     };

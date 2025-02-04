@@ -205,3 +205,13 @@ TON connect events:
 - Wallet connection restoring started
 
 ```
+
+## Start params
+Start parameters by default are taken from the start parameters that transmits the telegram.
+For example from deep link
+
+```https://t.me/{{bot_bane}}/{{short_name}}?startapp=command```
+
+In this case, start parameter will be ```command```
+
+If the start parameter is not passed when the application starts, it is taken from the application's url query parameter.
