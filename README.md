@@ -60,13 +60,29 @@ In your app:
 
 ```javascript
 import { TrackGroups, TwaAnalyticsProvider } from '@tonsolutions/telemetree-react';
+import { useInitData, useLaunchParams } from "@telegram-apps/sdk-react";
 
 export function App() {
+    const initData = useInitData();
+    const launchParams = useLaunchParams();
+    
+    const telegramWebAppData: TelegramWebAppData = {
+        query_id: initData?.queryId,
+        user: initData?.user,
+        chat_type: initData?.chatType,
+        chat_instance: initData?.chatInstance,
+        start_param: initData?.startParam,
+        auth_date: initData?.authDate,
+        hash: initData?.hash,
+        platform: launchParams?.platform,
+    };
+    
   return (
     <TwaAnalyticsProvider
       projectId="YOUR_PROJECT_ID"
       apiKey="YOUR_API_KEY"
       trackGroup={TrackGroups.HIGH} // default is TrackGroups.HIGH
+      telegramWebAppData={telegramWebAppData} // optional for alternative sdk, for example @telegram-apps/sdk-react
     >
       ...
     </TwaAnalyticsProvider>

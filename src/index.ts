@@ -17,3 +17,5 @@ export {
   type EventDetails,
   type EventUserDetails,
 } from './types/event';
+
+export { type TelegramWebAppData } from './models/telegram-web-app-data';
