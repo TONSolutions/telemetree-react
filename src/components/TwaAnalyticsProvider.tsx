@@ -14,6 +14,7 @@ import { Telegram } from '../telegram';
 import { TonConnectObserver } from '../observers/ton-connect.observer';
 import { Logger } from '../utils/logger';
 import {trackGroupHigh, trackGroupLow, trackGroupMedium, TrackGroups} from "./trackGroups";
+import {TelegramWebAppData} from "../models";
 
 declare global {
   interface Window {
@@ -34,6 +35,7 @@ export type TwaAnalyticsProviderOptions = {
   projectId: string;
   apiKey: string;
   trackGroup?: TrackGroups | false;
+  telegramWebAppData?: TelegramWebAppData;
 };
 
 export type TwaAnalyticsProviderProps = {
@@ -63,7 +65,8 @@ const TwaAnalyticsProvider: FunctionComponent<TwaAnalyticsProviderProps> = ({
     throw new Error('TWA Analytics Provider: Missing projectId');
   }
 
-  const telegramWebAppData = loadTelegramWebAppData();
+  const telegramWebAppData =
+    options.telegramWebAppData || loadTelegramWebAppData();
 
   const eventBuilder = useMemo(() => {
     return new EventBuilder(
