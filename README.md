@@ -60,7 +60,7 @@ In your app:
 
 ```javascript
 import { TrackGroups, TwaAnalyticsProvider } from '@tonsolutions/telemetree-react';
-import { useInitData, useLaunchParams } from "@telegram-apps/sdk-react";
+import { useInitData, useLaunchParams } from "@telegram-apps/sdk-react"; // v 1.1.3 
 
 export function App() {
     const initData = useInitData();
