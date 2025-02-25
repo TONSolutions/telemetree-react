@@ -40,6 +40,10 @@ Consider visiting our resources for more info about the state of the Telegram Mi
 - [Medium](https://medium.com/@telemetree)
 - [Documentation](https://docs.telemetree.io/)
 
+## Examples
+- [Next15 twa-dev/sdk](https://github.com/Telemetree/telemetree-next-15-template-twa-sdk)
+- [Next15 @telegram-apps/sdk](https://github.com/Telemetree/telemetree-next-15-template)
+
 # Installation
 
 Install it from [NPM](https://www.npmjs.com/package/@tonsolutions/telemetree-react):
