@@ -223,6 +223,7 @@ TON connect events:
 
 ## Start params
 Start parameters by default are taken from the start parameters that Telegram transmits.
+Please read [Telegram documentation](https://core.telegram.org/api/links#direct-mini-app-links) to understand!
 For example:
 
 ```https://t.me/{{bot_handle}}/{{short_name}}?startapp=command```
