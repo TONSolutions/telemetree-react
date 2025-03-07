@@ -224,6 +224,11 @@ TON connect events:
 ## Start params
 Start parameters by default are taken from the start parameters that Telegram transmits.
 Please read [Telegram documentation](https://core.telegram.org/api/links#direct-mini-app-links) to understand!
+
+How do I make a short name?
+1) Create a bot in telegram via @BotFather
+2) Enter the command /newapp
+
 For example:
 
 ```https://t.me/{{bot_handle}}/{{short_name}}?startapp=command```
