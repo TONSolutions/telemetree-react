@@ -4,12 +4,7 @@
 
 ![Static Badge](https://img.shields.io/badge/build-passing-brightgreen?style=flat) ![GitHub top language](https://img.shields.io/github/languages/top/tonsolutions/telemetree-react) ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/tonsolutions/telemetree-react)
 
-To learn more about the SDK, here are some useful links:
-
-- Documentation: https://docs.telemetree.io/
-- Boilerplate: https://github.com/TONSolutions/react-twa-boilerplate
-
-![Alt](https://repobeats.axiom.co/api/embed/71dde1ce0ebd118019e03f5e9ba6a9d0898f3d70.svg "Repobeats analytics image")
+Documentation: https://docs.telemetree.io/
 
 ## Telemetree SDKs for Telegram Mini App Analytics
 
@@ -227,11 +222,11 @@ TON connect events:
 ```
 
 ## Start params
-Start parameters by default are taken from the start parameters that transmits the telegram.
-For example from deep link
+Start parameters by default are taken from the start parameters that Telegram transmits.
+For example:
 
-```https://t.me/{{bot_bane}}/{{short_name}}?startapp=command```
+```https://t.me/{{bot_handle}}/{{short_name}}?startapp=command```
 
-In this case, start parameter will be ```command```
+In this case, the start parameter will be ```command```.
 
 If the start parameter is not passed when the application starts, it is taken from the application's url query parameter.
