@@ -6,6 +6,7 @@ import {
   getCurrentUTCTimestamp,
   getCurrentUTCTimestampMilliseconds,
 } from '../helpers/date.helper';
+import { sanitizeEventName, sanitizeElementText, sanitizeEventProperties } from '../helpers/text.helper';
 import { IEventBuilder } from '../interfaces';
 import { TelegramWebAppData } from '../models';
 import { TransportFactory } from '../transports/transport-factory';
@@ -97,7 +98,7 @@ export class EventBuilder implements IEventBuilder {
     if (target && trackTags.includes(target.tagName)) {
       const customProperties = this.getElementProperties(target);
       this.track(
-        `${config.defaultSystemEventPrefix} ${EventType.Click}${config.defaultSystemEventPrefix}${target.innerText}`,
+        `${config.defaultSystemEventPrefix} ${EventType.Click}${config.defaultSystemEventPrefix}${sanitizeEventName(target.innerText)}`,
         customProperties,
       );
     }
@@ -124,7 +125,7 @@ export class EventBuilder implements IEventBuilder {
         return props;
       },
       {
-        text: element.innerText,
+        text: sanitizeElementText(element),
         tag: element.tagName.toLowerCase(),
       } as Record<string, string>,
     );
@@ -147,14 +148,20 @@ export class EventBuilder implements IEventBuilder {
       throw new Error('Event name is not set.');
     }
 
+    // Sanitize event name to remove newlines and normalize whitespace
+    const sanitizedEventName = sanitizeEventName(eventName);
+    
+    // Sanitize event properties to remove newlines from string values
+    const sanitizedEventProperties = sanitizeEventProperties(eventProperties);
+
     if (!this.data.user?.id) {
       console.error(
-        `Event ${eventName} is not tracked because the app is not running inside Telegram.`,
+        `Event ${sanitizedEventName} is not tracked because the app is not running inside Telegram.`,
       );
       return;
     }
 
-    const event = this.createEventObject(eventName, eventProperties);
+    const event = this.createEventObject(sanitizedEventName, sanitizedEventProperties);
     // console.debug('[Telemetree] Created event object:', event);
 
     return this.pushHandler.push(event);
